@@ -75,7 +75,6 @@ class App extends React.Component {
     const rawAttributes = await getRawAttribute({});
     const attribDiscretization = await getDiscretization({});
     const currentPoints = await getPoints({});
-    console.log("..---", attribDiscretization)
     this.setState({
       ...this.state,
       dashboard: {
@@ -114,7 +113,6 @@ class App extends React.Component {
       isLoading,
       progress
     } = process
-    console.log("0000theme:v ", theme);
 
     return (
       <MainContext.Provider

@@ -38,7 +38,6 @@ export default function PersistentDrawerLeft() {
   const handleDrawerClose = () => {
     toogleDrawer(false);
   };
-  console.log("attributes: ", attributes);
 
   return (
     <Drawer
