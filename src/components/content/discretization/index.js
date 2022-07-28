@@ -27,7 +27,8 @@ export default function OutlinedCard() {
           <Typography variant="h6" component="div">
             {discretization.description}
           </Typography>
-          {discretization.map?.length &&
+          {
+            discretization.map?.length ?
             discretization.map.map((d, didx) => (
               <Box key={didx} sx={{ display: "flex", alignItems: "center" }}>
                 <Box
@@ -41,7 +42,11 @@ export default function OutlinedCard() {
                   {d.result.label}
                 </Typography>
               </Box>
-            ))}
+            )) :
+            <Typography variant="h6" component="div">
+            {"No map data"}
+          </Typography>
+          }
         </CardContent>
       </Card>
     </Box>

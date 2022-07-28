@@ -13,15 +13,17 @@ import { SnackbarProvider } from 'notistack';
 //modules
 import MainContext from './Context';
 import Themes from './../themes';
-import {
-  getRawAttribute,
-  getDiscretization,
-  getPoints
-} from "./../services";
+import attributeServices from "./../services/attribute";
+import nodeServices from "./../services/node";
+
 //components
 import Header from './../components/header';
 import Drawer from './../components/drawer';
 import Content from './../components/content';
+
+import {
+  getFeatureCollection
+} from "./../utils";
 
 class App extends React.Component {
   state = {
@@ -72,16 +74,15 @@ class App extends React.Component {
   }
 
   async componentDidMount() { 
-    const rawAttributes = await getRawAttribute({});
-    const attribDiscretization = await getDiscretization({});
-    const currentPoints = await getPoints({});
+    const currentAttributes = await attributeServices.getByOrganizationId({});
+    const currentNodes = await nodeServices.getByOrganizationId({});
     this.setState({
       ...this.state,
       dashboard: {
         ...this.state.dashboard,
-        attributes: rawAttributes || [],
-        discretization: attribDiscretization || {},
-        points: currentPoints || []
+        attributes: currentAttributes || [],
+        discretization: {},
+        points: getFeatureCollection(currentNodes) || []
       }
     })
   }

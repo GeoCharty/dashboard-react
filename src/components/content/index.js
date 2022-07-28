@@ -1,7 +1,7 @@
 import React, { useRef, useContext } from 'react';
-import {Map, Source, Layer} from 'react-map-gl';
+import { Map, Source, Layer } from 'react-map-gl';
 import MainContext from '../Context';
-import {Box} from "@mui/material";
+import { Box } from "@mui/material";
 import Discretization from "./discretization";
 
 const clusterLayer = {
@@ -44,7 +44,10 @@ const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;; // Set your map
 
 export default () => {
   const {
-    lightMode
+    lightMode,
+    dashboard: {
+      points
+    } = {}
   } = useContext(MainContext);
 
   const mapRef = useRef(null);
@@ -71,34 +74,34 @@ export default () => {
   return (
     <Box sx={{ height: "calc(100vh - 64px)" }}>
       <Box sx={{ height: "100%" }}>
-      <Map
-        initialViewState={{
-          latitude: 40.67,
-          longitude: -103.59,
-          zoom: 3
-        }}
-        mapStyle={`mapbox://styles/mapbox/${lightMode ? 'streets-v11' : 'dark-v10'}`}
-        mapboxAccessToken={MAPBOX_TOKEN}
-        interactiveLayerIds={[clusterLayer.id]}
-        onClick={onClick}
-        ref={mapRef}
-      >
-        <Source
-          id="earthquakes"
-          type="geojson"
-          data="https://docs.mapbox.com/mapbox-gl-js/assets/earthquakes.geojson"
-          cluster={true}
-          clusterMaxZoom={14}
-          clusterRadius={50}
+        <Map
+          initialViewState={{
+            latitude: 40.67,
+            longitude: -103.59,
+            zoom: 3
+          }}
+          mapStyle={`mapbox://styles/mapbox/${lightMode ? 'streets-v11' : 'dark-v10'}`}
+          mapboxAccessToken={MAPBOX_TOKEN}
+          interactiveLayerIds={[clusterLayer.id]}
+          onClick={onClick}
+          ref={mapRef}
         >
-          <Layer {...clusterLayer} />
-          <Layer {...clusterCountLayer} />
-          <Layer {...unclusteredPointLayer} />
-        </Source>
-      </Map>
+          <Source
+            id="earthquakes"
+            type="geojson"
+            data={points}
+            cluster={true}
+            clusterMaxZoom={14}
+            clusterRadius={50}
+          >
+            <Layer {...clusterLayer} />
+            <Layer {...clusterCountLayer} />
+            <Layer {...unclusteredPointLayer} />
+          </Source>
+        </Map>
       </Box>
       <Discretization />
     </Box>
-   
+
   );
 }
