@@ -12,9 +12,96 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import Highcharts from 'highcharts'
+import HighchartsReact from 'highcharts-react-official'
+
+const options = (attribute) =>  ({
+  title: {
+    text: ""
+  },
+  subtitle: {
+    text: '',
+  },
+  yAxis: {
+    title: {
+      text: attribute.name
+    }
+  },
+  xAxis: {
+    title: {
+      text: "Time range"
+    },
+    accessibility: {
+      rangeDescription: 'Range: 2010 to 2017'
+    }
+  },
+  credits: {
+    enabled: false
+  },
+  legend: {
+    enabled: false,
+    layout: 'vertical',
+    align: 'right',
+    verticalAlign: 'middle'
+  },
+  plotOptions: {
+    series: {
+      label: {
+        connectorAllowed: false
+      },
+      pointStart: 2010
+    }
+  },
+
+  series: [{
+    type: "area",
+    name: attribute.name,
+    data: [43934, 52503, 57177, 69658, 97031, 119931, 137133, 154175]
+  }],
+
+  responsive: {
+    rules: [{
+      condition: {
+        maxWidth: 500
+      },
+      chartOptions: {
+        legend: {
+          layout: 'horizontal',
+          align: 'center',
+          verticalAlign: 'bottom'
+        }
+      }
+    }]
+  }
+
+})
 
 export default function NodeDetail(props) {
-  const [selectedAttribute, selectAttribute] = useState({});
+  const attributes = [
+    {
+      id: "Temperature",
+      name: "Temperature",
+      lastValue: 90,
+      value: 98.3,
+      unit: "K"
+    },
+    {
+      id: "Connected users",
+      name: "Connected users",
+      value: 35,
+      lastValue: 45,
+      unit: ""
+    },
+    {
+      id: "Voltage",
+      name: "Voltage",
+      unit: "V",
+      value: 12,
+      lastValue: 12
+    }
+  ];
+
+  const [selectedAttribute, selectAttribute] = useState(attributes?.[0]);
   const [selectedDateRange, selectDateRange] = useState("today");
 
   const handleChangeAttribute = (event) => {
@@ -39,29 +126,7 @@ export default function NodeDetail(props) {
     setValue(newValue);
   };
 
-  const attributes = [
-    {
-      id: "Temperature",
-      name: "Temperature",
-      lastValue: 90,
-      value: 98.3,
-      unit: "K"
-    },
-    {
-      id: "Connected users",
-      name: "Connected users",
-      value: 35,
-      lastValue: 45,
-      unit: ""
-    },
-    {
-      id: "Voltage",
-      name: "Voltage",
-      unit: "V",
-      value: 12,
-      lastValue: 12
-    }
-  ];
+  
 
   return (
     <Paper
@@ -133,9 +198,7 @@ export default function NodeDetail(props) {
       >
         {
           value === 1 &&
-          
-          
-            <Box>
+          <Box sx={{width: "100%" }}>
             <FormControl variant="filled" sx={{ minWidth: 120 }}>
               <InputLabel id="attribute-label">Attribute</InputLabel>
               <Select
@@ -146,11 +209,11 @@ export default function NodeDetail(props) {
                 value={selectedAttribute}
                 onChange={handleChangeAttribute}
               >
-               {
-                 attributes.map((a, idx) => (
-                  <MenuItem value={a}>{a.name}</MenuItem>
+                {
+                  attributes.map((a, idx) => (
+                    <MenuItem value={a}>{a.name}</MenuItem>
                   ))
-               }
+                }
               </Select></FormControl>
             <FormControl variant="filled" sx={{ ml: "16px", minWidth: 120 }}>
 
@@ -167,6 +230,12 @@ export default function NodeDetail(props) {
                 <MenuItem value={"today"}>Today</MenuItem>
               </Select>
             </FormControl>
+            <Box sx={{ mt: "16px", width: "100%" }}>
+              <HighchartsReact
+                highcharts={Highcharts}
+                options={options(selectedAttribute)}
+              />
+            </Box>
           </Box>
         }
         {
