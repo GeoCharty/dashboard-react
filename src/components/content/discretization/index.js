@@ -29,7 +29,7 @@ export default function OutlinedCard() {
           </Typography>
           {
             discretization.map?.length ?
-            discretization.map.map((d, didx) => (
+            discretization?.map?.map((d, didx) => (
               <Box key={didx} sx={{ display: "flex", alignItems: "center" }}>
                 <Box
                   sx={{

@@ -15,11 +15,13 @@ import MainContext from './Context';
 import Themes from './../themes';
 import attributeServices from "./../services/attribute";
 import nodeServices from "./../services/node";
+import discretizationServices from "./../services/attributeDiscretization";
 
 //components
 import Header from './../components/header';
 import Drawer from './../components/drawer';
 import Content from './../components/content';
+import NodeDetail from './../components/nodeDetail';
 
 import {
   getFeatureCollection
@@ -39,17 +41,33 @@ class App extends React.Component {
       }
     },
     dashboard: {
+      attribute: undefined,
       attributes: [],
       points: [],
       discretization: {}
     }
   }
 
+  setDashboard = (dashboard) => {
+    this.setState({
+      ...this.state,
+      dashboard: {
+        ...this.state.dashboard,
+        ...(dashboard || {})
+      }
+    });
+  }
+
   setProcess = (newProcesState) => {
     const {
-      state: { process }
+      state,
+      setState
     } = this;
-    this.setState({
+    const {
+      process 
+    } = state;
+    setState({
+      ...state,
       process: {
         ...process,
         ...newProcesState,
@@ -76,22 +94,28 @@ class App extends React.Component {
   async componentDidMount() { 
     const currentAttributes = await attributeServices.getByOrganizationId({});
     const currentNodes = await nodeServices.getByOrganizationId({});
-    this.setState({
-      ...this.state,
-      dashboard: {
-        ...this.state.dashboard,
-        attributes: currentAttributes || [],
-        discretization: {},
-        points: getFeatureCollection(currentNodes) || []
-      }
-    })
+    const currentAttribute = currentAttributes?.[0];
+    const currentDiscretization = await discretizationServices.getByAttributeId(currentAttribute)
+    this.setDashboard({
+      attribute: currentAttribute,
+      attributes: currentAttributes || [],
+      discretization: currentDiscretization?.[0] || {},
+      points: getFeatureCollection(currentNodes) || []
+    });
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  async componentDidUpdate(prevProps, prevState) {
     if (prevProps.useDark !== this.props.useDark) {
       this.setState({
         theme: this.props.useDark ? 'dark' : 'default'
       });
+    }
+    if (prevState.dashboard?.attribute?.id !== this.state.dashboard?.attribute?.id) {
+      const currentDiscretizations = await discretizationServices.getByAttributeId(this.state.dashboard?.attribute)
+      const currentDiscretization = currentDiscretizations?.[0]
+      this.setDashboard({
+        discretization: currentDiscretization || {}
+      })
     }
   }
 
@@ -107,14 +131,15 @@ class App extends React.Component {
     const {
       toogleDrawer,
       setTheme,
-      setProcess
+      setProcess,
+      setDashboard
     } = this;
 
     const {
       isLoading,
       progress
     } = process
-
+    
     return (
       <MainContext.Provider
         value={{
@@ -125,7 +150,8 @@ class App extends React.Component {
           setProcess,
           process,
           theme,
-          dashboard
+          dashboard,
+          setDashboard
         }}>
         <ThemeProvider theme={Themes[theme]}>
           <SnackbarProvider preventDuplicate maxSnack={3}>
@@ -150,9 +176,11 @@ class App extends React.Component {
                   value={progress.value}
                   color={progress.color} />
               }
+              <NodeDetail />
               <Header />
               <Drawer />
               <Content />
+              
             </Paper>
           </SnackbarProvider>
         </ThemeProvider>

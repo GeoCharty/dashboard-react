@@ -4,7 +4,7 @@ const {
 } = require("./../utils");
 
 const CORE_ENTITY = "node";
-const staticOrganizationId = "47119723";
+const staticOrganizationId = "32186570";
 
 const getByOrganizationId = async(params, abortSignal) => {
   const url = new URL(`/organization/${staticOrganizationId}/${CORE_ENTITY}/`, API_URL);
@@ -15,7 +15,7 @@ const getByOrganizationId = async(params, abortSignal) => {
     url: url.toString(),
     defaultValue: []
   }
-  console.log(`[${CORE_ENTITY}] getByOrganizationId requestParams: ${JSON.stringify(requestParams, null, 2)}`)
+  // console.log(`[${CORE_ENTITY}] getByOrganizationId requestParams: ${JSON.stringify(requestParams, null, 2)}`)
 
   return abstractRequest(requestParams, abortSignal);
 } 

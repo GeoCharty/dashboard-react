@@ -42,33 +42,36 @@ const unclusteredPointLayer = {
 
 const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;; // Set your mapbox token here
 
-export default () => {
+export default function Content () {
   const {
     lightMode,
     dashboard: {
-      points
+      points = []
     } = {}
   } = useContext(MainContext);
 
   const mapRef = useRef(null);
 
   const onClick = event => {
-    const feature = event.features[0];
-    const clusterId = feature.properties.cluster_id;
-
-    const mapboxSource = mapRef.current.getSource('earthquakes');
-
-    mapboxSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
-      if (err) {
-        return;
-      }
-
-      mapRef.current.easeTo({
-        center: feature.geometry.coordinates,
-        zoom,
-        duration: 500
+    if(event?.features?.length){
+      const feature = event.features[0];
+      const clusterId = feature.properties.cluster_id;
+  
+      const mapboxSource = mapRef.current.getSource('earthquakes');
+  
+      mapboxSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
+        if (err) {
+          return;
+        }
+  
+        mapRef.current.easeTo({
+          center: feature.geometry.coordinates,
+          zoom,
+          duration: 500
+        });
       });
-    });
+    }
+    
   };
 
   return (

@@ -31,8 +31,10 @@ export default function PersistentDrawerLeft() {
     drawerIsOpen,
     toogleDrawer,
     dashboard: {
-      attributes
-    } = {}
+      attributes,
+      attribute
+    } = {},
+    setDashboard
   } = useContext(MainContext);
   const theme = useTheme();
   const handleDrawerClose = () => {
@@ -77,13 +79,26 @@ export default function PersistentDrawerLeft() {
                   aria-labelledby="demo-radio-buttons-group-label"
                   defaultValue="female"
                   name="radio-buttons-group"
+                  value={attribute?.id}
+                  onChange={
+                    (_, value) => { 
+                      setDashboard({
+                        attribute: attributes.find(a => a?.id == value)
+                      });
+                    }
+                  }
                 >
                   <List>
                     {
                       attributes.map(attribute => (
-                        <ListItem key={attribute.id} disablePadding>
+                        <ListItem 
+                          key={attribute.id} 
+                          disablePadding>
                           <ListItemButton>
-                            <FormControlLabel value={attribute.id} control={<Radio />} label={attribute.name} />
+                            <FormControlLabel 
+                              value={attribute.id} 
+                              control={<Radio />} 
+                              label={attribute.name} />
                           </ListItemButton>
                         </ListItem>
                       ))
