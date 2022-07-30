@@ -9,17 +9,20 @@ import DateRangeIcon from "@mui/icons-material/DateRange";
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
-import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Select from '@mui/material/Select';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 
 export default function NodeDetail(props) {
-  const [age, setAge] = useState('');
+  const [selectedAttribute, selectAttribute] = useState({});
+  const [selectedDateRange, selectDateRange] = useState("today");
 
-  const handleChangeAge = (event) => {
-    setAge(event.target.value);
+  const handleChangeAttribute = (event) => {
+    selectAttribute(event.target.value);
   };
+  const handleChangeDateRange = (event) => {
+    selectDateRange(event.target.value)
+  }
 
   const {
     node: {
@@ -57,48 +60,6 @@ export default function NodeDetail(props) {
       unit: "V",
       value: 12,
       lastValue: 12
-    },
-    {
-      id: "Temperature",
-      name: "Temperature",
-      lastValue: 90,
-      value: 98.3,
-      unit: "K"
-    },
-    {
-      id: "Connected users",
-      name: "Connected users",
-      value: 35,
-      lastValue: 45,
-      unit: ""
-    },
-    {
-      id: "Voltage",
-      name: "Voltage",
-      unit: "V",
-      value: 12,
-      lastValue: 12
-    },
-    {
-      id: "Temperature",
-      name: "Temperature",
-      lastValue: 90,
-      value: 98.3,
-      unit: "K"
-    },
-    {
-      id: "Connected users",
-      name: "Connected users",
-      value: 35,
-      lastValue: 45,
-      unit: ""
-    },
-    {
-      id: "Voltage",
-      name: "Voltage",
-      unit: "V",
-      value: 12,
-      lastValue: 12
     }
   ];
 
@@ -111,9 +72,20 @@ export default function NodeDetail(props) {
         width: "450px",
         height: "450px",
         maxWidth: "450px",
-        maxHeight: "450px"
+        maxHeight: "450px",
+        pt: "16px"
       }}
     >
+      <IconButton aria-label="delete" sx={{
+        color: "text.primary",
+        position: "absolute",
+        top: "16px",
+        right: "16px",
+        p: 0
+      }}>
+        <CloseIcon sx={{ p: 0, m: 0 }} />
+      </IconButton>
+
       <Box
         sx={{
           height: "80px",
@@ -161,19 +133,24 @@ export default function NodeDetail(props) {
       >
         {
           value === 1 &&
-          <Box>
+          
+          
+            <Box>
             <FormControl variant="filled" sx={{ minWidth: 120 }}>
               <InputLabel id="attribute-label">Attribute</InputLabel>
               <Select
                 autoWidth
                 labelId="attribute-label"
                 id="attribute"
-                value={age}
-                onChange={handleChangeAge}
+                renderValue={(value) => value.name}
+                value={selectedAttribute}
+                onChange={handleChangeAttribute}
               >
-                <MenuItem value={10}>Ten</MenuItem>
-                <MenuItem value={20}>Twenty</MenuItem>
-                <MenuItem value={30}>Thirty</MenuItem>
+               {
+                 attributes.map((a, idx) => (
+                  <MenuItem value={a}>{a.name}</MenuItem>
+                  ))
+               }
               </Select></FormControl>
             <FormControl variant="filled" sx={{ ml: "16px", minWidth: 120 }}>
 
@@ -182,16 +159,15 @@ export default function NodeDetail(props) {
                 autoWidth
                 labelId="date-range-label"
                 id="date-range"
-                value={age}
-                onChange={handleChangeAge}
+                value={selectedDateRange}
+                onChange={handleChangeDateRange}
               >
-                <MenuItem value={10}>Ten</MenuItem>
-                <MenuItem value={20}>Twenty</MenuItem>
-                <MenuItem value={30}>Thirty</MenuItem>
+                <MenuItem value={"this month"}>This month</MenuItem>
+                <MenuItem value={"this year"}>This year</MenuItem>
+                <MenuItem value={"today"}>Today</MenuItem>
               </Select>
             </FormControl>
           </Box>
-
         }
         {
           value === 0 &&
