@@ -49,7 +49,7 @@ export default function Content () {
       points = []
     } = {}
   } = useContext(MainContext);
-
+  console.log("map lightMode", lightMode)
   const mapRef = useRef(null);
 
   const onClick = event => {

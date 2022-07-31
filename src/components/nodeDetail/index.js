@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import MainContext from '../Context';
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
@@ -13,9 +14,18 @@ import Select from '@mui/material/Select';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import Highcharts from 'highcharts'
+import Dark from 'highcharts/themes/dark-unica';
+import Light from 'highcharts/themes/brand-light';
 import HighchartsReact from 'highcharts-react-official'
 
-const options = (attribute) =>  ({
+require('highcharts/modules/exporting')(Highcharts)
+require('highcharts/highcharts-more')(Highcharts);
+const options = (attribute, timeRange) => ({
+  chart: {
+    style: {
+      fontFamily: 'inherit'
+    }
+  },
   title: {
     text: ""
   },
@@ -25,7 +35,9 @@ const options = (attribute) =>  ({
   yAxis: {
     title: {
       text: attribute.name
-    }
+    },
+    gridLineWidth: 0.75,
+    gridLineDashStyle: "dash"
   },
   xAxis: {
     title: {
@@ -33,7 +45,9 @@ const options = (attribute) =>  ({
     },
     accessibility: {
       rangeDescription: 'Range: 2010 to 2017'
-    }
+    },
+    gridLineWidth: 0.75,
+    gridLineDashStyle: "dash"
   },
   credits: {
     enabled: false
@@ -50,15 +64,17 @@ const options = (attribute) =>  ({
         connectorAllowed: false
       },
       pointStart: 2010
-    }
-  },
+    },
+    area: {
+      fillOpacity: 0.30
+    },
 
+  },
   series: [{
     type: "area",
     name: attribute.name,
     data: [43934, 52503, 57177, 69658, 97031, 119931, 137133, 154175]
   }],
-
   responsive: {
     rules: [{
       condition: {
@@ -72,11 +88,17 @@ const options = (attribute) =>  ({
         }
       }
     }]
+  },
+  exporting: {
+    enabled: true
   }
-
 })
 
 export default function NodeDetail(props) {
+  const {
+    lightMode
+  } = useContext(MainContext);
+
   const attributes = [
     {
       id: "Temperature",
@@ -100,6 +122,17 @@ export default function NodeDetail(props) {
       lastValue: 12
     }
   ];
+
+  useEffect(() => {
+
+    console.log("lightMode", lightMode);
+    if (lightMode == 'default') {
+      Light(Highcharts);
+    } else if (lightMode == 'dark' || lightMode == undefined) {
+      console.log("dark moded")
+      Dark(Highcharts);
+    }
+  }, [])
 
   const [selectedAttribute, selectAttribute] = useState(attributes?.[0]);
   const [selectedDateRange, selectDateRange] = useState("today");
@@ -126,7 +159,7 @@ export default function NodeDetail(props) {
     setValue(newValue);
   };
 
-  
+
 
   return (
     <Paper
@@ -138,7 +171,8 @@ export default function NodeDetail(props) {
         height: "450px",
         maxWidth: "450px",
         maxHeight: "450px",
-        pt: "16px"
+        pt: "16px",
+        boxSizing: "border-box"
       }}
     >
       <IconButton aria-label="delete" sx={{
@@ -168,7 +202,7 @@ export default function NodeDetail(props) {
         </Typography>
       </Box>
       <Paper
-        elevation={12}
+        variant="outlined"
         sx={{
           boxSizing: "border-box",
           height: "72px"
@@ -198,7 +232,7 @@ export default function NodeDetail(props) {
       >
         {
           value === 1 &&
-          <Box sx={{width: "100%" }}>
+          <Box sx={{ width: "100%" }}>
             <FormControl variant="filled" sx={{ minWidth: 120 }}>
               <InputLabel id="attribute-label">Attribute</InputLabel>
               <Select
@@ -230,7 +264,9 @@ export default function NodeDetail(props) {
                 <MenuItem value={"today"}>Today</MenuItem>
               </Select>
             </FormControl>
-            <Box sx={{ mt: "16px", width: "100%" }}>
+            <Box sx={{
+              mt: "16px", width: "100%"
+            }}>
               <HighchartsReact
                 highcharts={Highcharts}
                 options={options(selectedAttribute)}
