@@ -25,7 +25,9 @@ import Utils from "./../../utils";
 
 
 import HighchartsReact from 'highcharts-react-official';
-
+import {
+  firebase
+} from "./../../services/firebase/firebase";
 import CONSTANTS from "./../../utils/constants";
 require('highcharts/modules/exporting')(Highcharts)
 require('highcharts/highcharts-more')(Highcharts);
@@ -142,36 +144,22 @@ export default function NodeDetail() {
   const [points, setPoints] = useState([]);
 
   useEffect(() => {
-    let isSubscribed = true;
+    // let isSubscribed = true;
     const fetchData = async () => {
       const data = await attributeServices.getByNodeId({ nodeId });
-      if (isSubscribed) {
-        setAttributes(data);
-        selectAttribute(data?.[0]);
-      }
+      setAttributes(data);
+      selectAttribute(data?.[0]);
+      
+      const data2 = await networkServices.getByNodeId({ nodeId });
+      setNetwork(data2?.[0]);
     }
     fetchData().catch(console.error);
-    return () => isSubscribed = false;
-  }, [nodeId]);
+    // return () => isSubscribed = false;
+  }, [])
 
   useEffect(() => {
-    let isSubscribed = true;
-    const fetchData = async () => {
-      const data = await networkServices.getByNodeId({ nodeId });
-      if (isSubscribed) {
-        setNetwork(data?.[0]);
-      }
-    }
-    fetchData().catch(console.error);
-    return () => isSubscribed = false;
-  }, [nodeId]);
-
-  useEffect(() => {
-    if (lightMode == 'default') {
-      Light(Highcharts);
-    } else if (lightMode == 'dark' || lightMode == undefined) {
-      Dark(Highcharts);
-    }
+    if (lightMode == 'default') Light(Highcharts);
+    if (lightMode == 'dark' || lightMode == undefined) Dark(Highcharts);
   }, []);
 
   useEffect(() => {
@@ -199,38 +187,39 @@ export default function NodeDetail() {
   }, [selectedAttribute, selectedDateRange])
 
   useEffect(() => {
-    
-console.log("attributes", attributes);
+
     if (selectedAttribute?.node_attribute_id) {
+      
       const syncAttribute = () => {
-        db.collection('node_attribute').doc(String(selectedAttribute.node_attribute_id)).onSnapshot((snapshot, error) => {
-          if(error){
-            console.log(error);
-          }else{
-            const snaps = snapshot.data();
-            console.log("from firebase: ", snaps);
-            // setAttributes(lastAttributes => {
-            //   return lastAttributes.map(att => {
-            //     const newAtt = {
-            //       ...att
-            //     }
-            //     if(att.attribuiteId == att.id){
-            //       if(att.value != undefined) newAtt.lastValue = att.value
-            //       if(snaps?.attributeValue != undefined) newAtt.value = snaps?.attributeValue
-            //     }
-            //     return newAtt
-            //   })
-            // })
-            
-          }
-        });
-      }  
+        db
+          .collection('node_attribute')
+          .doc(String(selectedAttribute.node_attribute_id))
+          .onSnapshot((snapshot, error) => {
+            if (error) {
+              console.log(error);
+            } else {
+              const document = snapshot.data();
+              console.log("Firebase read");
+              if(document){
+                setAttributes(lastAttributes => {
+                  return lastAttributes.map(att => {
+                    if(att.id == document.attributeId){
+                      if(att.value != undefined) att.lastValue = att.value
+                      if(document.attributeValue != undefined) att.value = document.attributeValue
+                    }
+                    return att;
+                  })
+                })
+              }
+            }
+          });
+      }
       syncAttribute();
       // eslint-disable-next-line
     }
-  }, []);
+  }, [selectedAttribute]);
 
-  console.log("selectedAttribute", selectedAttribute);
+  console.log("modal", {nodeId, attributeId: selectedAttribute?.id})
   return (
     <Paper
       elevation={6}

@@ -133,11 +133,6 @@ class App extends React.Component {
     } = this.state;
 
     const {
-      selectedNode
-    } = dashboard;
-    console.log("selectedNode", selectedNode);
-
-    const {
       toogleDrawer,
       setTheme,
       setProcess,
