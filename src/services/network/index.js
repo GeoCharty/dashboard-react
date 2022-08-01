@@ -1,15 +1,15 @@
 const API_URL = process.env.REACT_APP_API_URL;
 const {
   abstractRequest
-} = require("./../utils");
+} = require("../utils");
 
-const CORE_ENTITY = "node";
+const CORE_ENTITY = "network";
 
-const getByOrganizationId = async(params, abortSignal) => {
+const getByNodeId = async(params, abortSignal) => {
   const {
-    organizationId
+    nodeId
   } = params || {};
-  const url = new URL(`/organization/${organizationId}/${CORE_ENTITY}/`, API_URL);
+  const url = new URL(`/node/${nodeId}/${CORE_ENTITY}/`, API_URL);
 
   const requestParams = {
     ...params,
@@ -21,5 +21,5 @@ const getByOrganizationId = async(params, abortSignal) => {
   return abstractRequest(requestParams, abortSignal);
 } 
 module.exports = {
-  getByOrganizationId
+  getByNodeId
 }

@@ -32,7 +32,7 @@ export default function PersistentDrawerLeft() {
     toogleDrawer,
     dashboard: {
       attributes,
-      attribute
+      selectedAttribute
     } = {},
     setDashboard
   } = useContext(MainContext);
@@ -79,11 +79,11 @@ export default function PersistentDrawerLeft() {
                   aria-labelledby="demo-radio-buttons-group-label"
                   defaultValue="female"
                   name="radio-buttons-group"
-                  value={attribute?.id}
+                  value={selectedAttribute?.id}
                   onChange={
                     (_, value) => { 
                       setDashboard({
-                        attribute: attributes.find(a => a?.id == value)
+                        selectedAttribute: attributes.find(a => a?.id == value)
                       });
                     }
                   }

@@ -1,4 +1,4 @@
-import React, { useRef, useContext } from 'react';
+import React, { useRef, useContext, useCallback, useEffect } from 'react';
 import { Map, Source, Layer } from 'react-map-gl';
 import MainContext from '../Context';
 import { Box } from "@mui/material";
@@ -7,18 +7,18 @@ import Discretization from "./discretization";
 const clusterLayer = {
   id: 'clusters',
   type: 'circle',
-  source: 'earthquakes',
+  source: 'nodes',
   filter: ['has', 'point_count'],
   paint: {
-    'circle-color': ['step', ['get', 'point_count'], '#51bbd6', 100, '#f1f075', 750, '#f28cb1'],
-    'circle-radius': ['step', ['get', 'point_count'], 20, 100, 30, 750, 40]
+    'circle-color': ['step', ['get', 'point_count'], '#51bbd6', 1, '#f1f075', 5, '#f28cb1'],
+    'circle-radius': ['step', ['get', 'point_count'], 30, 100, 60, 750, 60]
   }
 };
 
 const clusterCountLayer = {
   id: 'cluster-count',
   type: 'symbol',
-  source: 'earthquakes',
+  source: 'nodes',
   filter: ['has', 'point_count'],
   layout: {
     'text-field': '{point_count_abbreviated}',
@@ -30,69 +30,93 @@ const clusterCountLayer = {
 const unclusteredPointLayer = {
   id: 'unclustered-point',
   type: 'circle',
-  source: 'earthquakes',
+  source: 'nodes',
   filter: ['!', ['has', 'point_count']],
   paint: {
     'circle-color': '#11b4da',
-    'circle-radius': 4,
+    'circle-radius': 8,
     'circle-stroke-width': 1,
     'circle-stroke-color': '#fff'
   }
 };
 
-const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;; // Set your mapbox token here
+const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
-export default function Content () {
+
+export default function Content() {
   const {
     lightMode,
     dashboard: {
-      points = []
-    } = {}
+      nodes = [],
+      selectedNode
+    } = {},
+    setDashboard
   } = useContext(MainContext);
-  console.log("map lightMode", lightMode)
   const mapRef = useRef(null);
 
-  const onClick = event => {
-    if(event?.features?.length){
-      const feature = event.features[0];
-      const clusterId = feature.properties.cluster_id;
-  
-      const mapboxSource = mapRef.current.getSource('earthquakes');
-  
-      mapboxSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
-        if (err) {
-          return;
-        }
-  
+  useEffect(() => {
+    if (nodes?.features?.length) {
+      if (nodes?.features?.[0]?.geometry?.coordinates?.length) {
         mapRef.current.easeTo({
-          center: feature.geometry.coordinates,
-          zoom,
-          duration: 500
-        });
-      });
+          center: nodes?.features?.[10]?.geometry?.coordinates.reverse(),
+          zoom: 3,
+          speed: 0.2,
+          curve: 1,
+          duration: 5000,
+        })
+      }
     }
-    
-  };
+  }, [nodes]);
+  
+  const onClick = useCallback(event => {
+    if (event?.features?.length) {
+      const [feature] = event.features;
+      const {
+        layer: {
+          id: layerId
+        } = {},
+        properties
+      } = feature;
+      if (layerId == "unclustered-point") {
+        setDashboard({
+          selectedNode: properties
+        })
+      } else if (layerId == "clusters") {
+        const clusterId = properties.cluster_id;
+        const mapboxSource = mapRef.current.getSource('nodes');
+        mapboxSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
+          if (err) {
+            return;
+          }
+          mapRef.current.easeTo({
+            center: feature.geometry.coordinates,
+            zoom,
+            duration: 2000
+          });
+        });
+      }
+    }
+  }, []);
 
   return (
     <Box sx={{ height: "calc(100vh - 64px)" }}>
       <Box sx={{ height: "100%" }}>
         <Map
           initialViewState={{
-            latitude: 40.67,
-            longitude: -103.59,
-            zoom: 3
+            latitude: -2.205671,
+            longitude: -79.906641,
+            zoom: 10
           }}
           mapStyle={`mapbox://styles/mapbox/${lightMode ? 'streets-v11' : 'dark-v10'}`}
           mapboxAccessToken={MAPBOX_TOKEN}
-          interactiveLayerIds={[clusterLayer.id]}
+          interactiveLayerIds={[clusterLayer.id, unclusteredPointLayer.id]}
           onClick={onClick}
           ref={mapRef}
         >
           <Source
-            id="earthquakes"
+            id="nodes"
             type="geojson"
-            data={points}
+            data={nodes}
             cluster={true}
             clusterMaxZoom={14}
             clusterRadius={50}

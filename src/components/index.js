@@ -41,10 +41,11 @@ class App extends React.Component {
       }
     },
     dashboard: {
-      attribute: undefined,
+      selectedAttribute: undefined,
       attributes: [],
-      points: [],
-      discretization: {}
+      nodes: [],
+      discretization: {},
+      selectedNode: undefined
     }
   }
 
@@ -92,15 +93,15 @@ class App extends React.Component {
   }
 
   async componentDidMount() { 
-    const currentAttributes = await attributeServices.getByOrganizationId({});
-    const currentNodes = await nodeServices.getByOrganizationId({});
+    const currentAttributes = await attributeServices.getByOrganizationId({organizationId: "32186570"});
+    const currentNodes = await nodeServices.getByOrganizationId({organizationId: "32186570"});
     const currentAttribute = currentAttributes?.[0];
     const currentDiscretization = await discretizationServices.getByAttributeId(currentAttribute)
     this.setDashboard({
-      attribute: currentAttribute,
+      selectedAttribute: currentAttribute,
       attributes: currentAttributes || [],
       discretization: currentDiscretization?.[0] || {},
-      points: getFeatureCollection(currentNodes) || []
+      nodes: getFeatureCollection(currentNodes) || []
     });
   }
 
@@ -110,8 +111,8 @@ class App extends React.Component {
         theme: this.props.useDark ? 'dark' : 'default'
       });
     }
-    if (prevState.dashboard?.attribute?.id !== this.state.dashboard?.attribute?.id) {
-      const currentDiscretizations = await discretizationServices.getByAttributeId(this.state.dashboard?.attribute)
+    if (prevState.dashboard?.selectedAttribute?.id !== this.state.dashboard?.selectedAttribute?.id) {
+      const currentDiscretizations = await discretizationServices.getByAttributeId(this.state.dashboard?.selectedAttribute)
       const currentDiscretization = currentDiscretizations?.[0]
       this.setDashboard({
         discretization: currentDiscretization || {}
@@ -176,7 +177,10 @@ class App extends React.Component {
                   value={progress.value}
                   color={progress.color} />
               }
-              <NodeDetail />
+              {
+                dashboard.selectedNode && 
+                <NodeDetail />
+              }
               <Header />
               <Drawer />
               <Content />

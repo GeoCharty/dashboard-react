@@ -1,23 +1,31 @@
-const TIME_RANGE = {
+
+const DATE_RANGE = {
   TODAY: {
     id: 0,
-    name: "TODAY"
+    name: "TODAY",
+    label: "today"
   },
   THIS_WEEK: {
-    id: 0,
-    name: "THIS WEEK"
+    id: 1,
+    name: "THIS WEEK",
+    label: "this week"
   },
   THIS_YEAR: {
-    id: 0,
-    name: "THIS YEAR"
+    id: 2,
+    name: "THIS YEAR",
+    label: "this year"
   },
   CUSTOM: {
-    id: 0,
-    name: "CUSTOM"
+    id: 3,
+    name: "CUSTOM",
+    label: "custom"
   }
 }
 const TIME_ZONE = {
   "GTM-5": {
     name: "America, Guayaquil"
   }
+}
+module.exports = {
+  DATE_RANGE
 }

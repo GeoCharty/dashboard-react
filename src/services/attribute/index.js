@@ -4,10 +4,12 @@ const {
 } = require("./../utils");
 
 const CORE_ENTITY = "attribute";
-const staticOrganizationId = "32186570";
 
 const getByOrganizationId = async(params, abortSignal) => {
-  const url = new URL(`/organization/${staticOrganizationId}/${CORE_ENTITY}/`, API_URL);
+  const {
+    organizationId
+  } = params || {};
+  const url = new URL(`/organization/${organizationId}/${CORE_ENTITY}/`, API_URL);
   
   const requestParams = {
     ...params,
@@ -15,10 +17,26 @@ const getByOrganizationId = async(params, abortSignal) => {
     url: url.toString(),
     defaultValue: []
   }
-  // console.log(`[${CORE_ENTITY}] getByOrganizationId requestParams: ${JSON.stringify(requestParams, null, 2)}`)
+
+  return abstractRequest(requestParams, abortSignal);
+} 
+
+const getByNodeId = async(params, abortSignal) => {
+  const {
+    nodeId
+  } = params || {};
+  const url = new URL(`/node/${nodeId}/${CORE_ENTITY}/`, API_URL);
+  
+  const requestParams = {
+    ...params,
+    method: 'GET',
+    url: url.toString(),
+    defaultValue: []
+  }
 
   return abstractRequest(requestParams, abortSignal);
 } 
 module.exports = {
-  getByOrganizationId
+  getByOrganizationId,
+  getByNodeId
 }

@@ -7,7 +7,7 @@ const CORE_ENTITY = "attributeDiscretization";
 const getByAttributeId = async(params, abortSignal) => {
   const {
     id: attributeId
-  } = params;
+  } = params || {};
   const url = new URL(`/attribute/${attributeId}/${CORE_ENTITY}/`, API_URL);
   const requestParams = {
     method: 'GET',
