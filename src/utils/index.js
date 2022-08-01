@@ -1,3 +1,4 @@
+const moment = require("moment");
 
 const getFeatureCollection = (data) => {
   return {
@@ -15,6 +16,33 @@ const getFeatureCollection = (data) => {
     }) : []
   }
 }
+const getTimestamps = (dateRange) => {
+  const {
+    id: dateRangeId
+  } = dateRange;
+
+  switch (dateRangeId) {
+    case 0:
+      return {
+        from: moment().startOf('day').valueOf(),
+        to: moment().endOf("day").valueOf()
+      }
+    case 1:
+      return {
+        from: moment().startOf('week').valueOf(),
+        to: moment().endOf("week").valueOf()
+      }
+    case 2:
+      return {
+        from: moment().startOf('year').valueOf(),
+        to: moment().endOf("year").valueOf()
+      }
+    default:
+      throw new Error("NO DATE RANGE ALLOWED")
+  }
+}
+
 module.exports = {
-  getFeatureCollection
+  getFeatureCollection,
+  getTimestamps
 }

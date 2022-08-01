@@ -10,6 +10,8 @@ import {
 import { ThemeProvider } from '@mui/material/styles';
 //other libs
 import { SnackbarProvider } from 'notistack';
+import FirebaseProvider from './../services/firebase';
+
 //modules
 import MainContext from './Context';
 import Themes from './../themes';
@@ -101,7 +103,8 @@ class App extends React.Component {
       selectedAttribute: currentAttribute,
       attributes: currentAttributes || [],
       discretization: currentDiscretization?.[0] || {},
-      nodes: getFeatureCollection(currentNodes) || []
+      nodes: currentNodes || [],
+      nodesAsFeatures: getFeatureCollection(currentNodes || [])
     });
   }
 
@@ -130,6 +133,11 @@ class App extends React.Component {
     } = this.state;
 
     const {
+      selectedNode
+    } = dashboard;
+    console.log("selectedNode", selectedNode);
+
+    const {
       toogleDrawer,
       setTheme,
       setProcess,
@@ -142,6 +150,7 @@ class App extends React.Component {
     } = process
     
     return (
+      <FirebaseProvider>
       <MainContext.Provider
         value={{
           drawerIsOpen,
@@ -189,6 +198,7 @@ class App extends React.Component {
           </SnackbarProvider>
         </ThemeProvider>
       </MainContext.Provider>
+      </FirebaseProvider>
     )
   }
 }

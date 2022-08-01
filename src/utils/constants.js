@@ -27,5 +27,6 @@ const TIME_ZONE = {
   }
 }
 module.exports = {
-  DATE_RANGE
+  DATE_RANGE,
+  TIME_ZONE
 }

@@ -54,8 +54,13 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 export default function SearchAppBar() {
   const {
-    toogleDrawer
+    toogleDrawer,
+    dashboard: {
+      nodes
+    },
+    setDashboard
   } = useContext(MainContext);
+
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -79,7 +84,20 @@ export default function SearchAppBar() {
           >
             Dashboard
           </Typography>
-          <Search>
+          <Search 
+            onKeyPress={(event) => {
+              if(event.key === 'Enter'){
+                const value = event.target.value
+                if(value.length > 3){
+                  const targetNode = nodes.find(n => n.id == value);
+                  if(targetNode){
+                    setDashboard({
+                      selectedNode: targetNode
+                    })
+                  }
+                }
+              }
+            }}>
             <SearchIconWrapper>
               <SearchIcon />
             </SearchIconWrapper>

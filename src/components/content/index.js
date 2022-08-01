@@ -48,6 +48,7 @@ export default function Content() {
     lightMode,
     dashboard: {
       nodes = [],
+      nodesAsFeatures = [],
       selectedNode
     } = {},
     setDashboard
@@ -55,10 +56,10 @@ export default function Content() {
   const mapRef = useRef(null);
 
   useEffect(() => {
-    if (nodes?.features?.length) {
-      if (nodes?.features?.[0]?.geometry?.coordinates?.length) {
+    if (nodesAsFeatures?.features?.length) {
+      if (nodesAsFeatures?.features?.[0]?.geometry?.coordinates?.length) {
         mapRef.current.easeTo({
-          center: nodes?.features?.[10]?.geometry?.coordinates.reverse(),
+          center: nodesAsFeatures?.features?.[10]?.geometry?.coordinates.reverse(),
           zoom: 3,
           speed: 0.2,
           curve: 1,
@@ -66,8 +67,8 @@ export default function Content() {
         })
       }
     }
-  }, [nodes]);
-  
+  }, [nodesAsFeatures]);
+
   const onClick = useCallback(event => {
     if (event?.features?.length) {
       const [feature] = event.features;
@@ -116,7 +117,7 @@ export default function Content() {
           <Source
             id="nodes"
             type="geojson"
-            data={nodes}
+            data={nodesAsFeatures}
             cluster={true}
             clusterMaxZoom={14}
             clusterRadius={50}

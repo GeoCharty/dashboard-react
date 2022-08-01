@@ -8,7 +8,6 @@ export async function abstractRequest(params, abortSignal) {
     method,
     defaultValue
   } = params;
-
   let response;
   try {
     response = await fetch(url, {
