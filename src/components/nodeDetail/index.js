@@ -16,18 +16,16 @@ import CloseIcon from '@mui/icons-material/Close';
 import Highcharts from 'highcharts'
 import Dark from 'highcharts/themes/dark-unica';
 import Light from 'highcharts/themes/brand-light';
-import FirebaseContext from '../..//services/firebase/context';
 
 import networkServices from "./../../services/network";
 import attributeServices from "./../../services/attribute";
 import pointServices from "./../../services/point";
 import Utils from "./../../utils";
-
+import NodeDetailAttribute from "./nodeDetailAttribute";
+import LineChartOptions from "./LineChartOptions";
 
 import HighchartsReact from 'highcharts-react-official';
-import {
-  firebase
-} from "./../../services/firebase/firebase";
+
 import CONSTANTS from "./../../utils/constants";
 require('highcharts/modules/exporting')(Highcharts)
 require('highcharts/highcharts-more')(Highcharts);
@@ -39,89 +37,7 @@ const {
   DATE_RANGE
 } = CONSTANTS;
 
-const options = (attribute, data) => ({
-  chart: {
-    height: (278 / 408 * 100) + '%',
-    zoomType: 'x',
-    style: {
-      fontFamily: 'inherit'
-    },
-    backgroundColor: ""
-  },
-  title: {
-    text: ""
-  },
-  subtitle: {
-    text: '',
-  },
-  yAxis: {
-    title: {
-      text: attribute.name
-    },
-    gridLineWidth: 0.75,
-    gridLineDashStyle: "dash"
-  },
-  xAxis: {
-    type: 'datetime',
-    title: {
-      text: "Time range"
-    },
-    accessibility: {
-      rangeDescription: 'Range: 2010 to 2017'
-    },
-    gridLineWidth: 0.75,
-    gridLineDashStyle: "dash"
-  },
-  credits: {
-    enabled: false
-  },
-  legend: {
-    enabled: false,
-    layout: 'vertical',
-    align: 'right',
-    verticalAlign: 'middle'
-  },
-  plotOptions: {
-    series: {
-      label: {
-        connectorAllowed: false
-      }
-    },
-    area: {
-      fillOpacity: 0.30
-    },
-
-  },
-  series: [{
-    type: "area",
-    name: attribute.name,
-    data: data?.length ? data : []
-  }],
-  responsive: {
-    rules: [{
-      condition: {
-        maxWidth: 500
-      },
-      chartOptions: {
-        legend: {
-          layout: 'horizontal',
-          align: 'center',
-          verticalAlign: 'bottom'
-        }
-      }
-    }]
-  },
-  exporting: {
-    enabled: true
-  },
-  accessibility: {
-    enabled: true
-  }
-})
-
 export default function NodeDetail() {
-  const { db } = useContext(FirebaseContext);
-
   const {
     lightMode,
     dashboard: {
@@ -141,29 +57,31 @@ export default function NodeDetail() {
   const [selectedAttribute, selectAttribute] = useState();
   const [selectedDateRange, selectDateRange] = useState(DATE_RANGE.TODAY);
   const [tabIndex, setTabIndex] = useState(0);
-  const [points, setPoints] = useState([]);
+  const [lineChartOptions, setLineChartOptions] = useState(LineChartOptions);
+
+  console.log("lineChartOptions", lineChartOptions);
 
   useEffect(() => {
-    // let isSubscribed = true;
     const fetchData = async () => {
       const data = await attributeServices.getByNodeId({ nodeId });
       setAttributes(data);
       selectAttribute(data?.[0]);
-      
+
       const data2 = await networkServices.getByNodeId({ nodeId });
       setNetwork(data2?.[0]);
     }
-    fetchData().catch(console.error);
-    // return () => isSubscribed = false;
+    fetchData()
   }, [])
 
   useEffect(() => {
-    if (lightMode == 'default') Light(Highcharts);
-    if (lightMode == 'dark' || lightMode == undefined) Dark(Highcharts);
-  }, []);
+    if (lightMode === 'default') Light(Highcharts);
+    if (lightMode === 'dark' || lightMode === undefined) Dark(Highcharts);
+  }, [lightMode]);
 
   useEffect(() => {
-    if (![selectedAttribute, selectedDateRange].includes(undefined) &&
+    if (
+      selectedAttribute?.id !== undefined &&
+      selectedDateRange?.id !== undefined &&
       tabIndex == 1) {
       const {
         id: attributeId
@@ -174,52 +92,29 @@ export default function NodeDetail() {
         attributeId,
         dateRange: getTimestamps(selectedDateRange)
       }
+      console.log("params", params);
 
       const fetchData = async () => {
         const data = await pointServices.getByDateRange(params);
-        const {
+        let {
           result = []
         } = data;
-        setPoints(result.map(r => [new Date(r.time).valueOf(), Number(r.measure_value)]));
-      }
-      fetchData().catch(console.error);
-    }
-  }, [selectedAttribute, selectedDateRange])
-
-  useEffect(() => {
-
-    if (selectedAttribute?.node_attribute_id) {
-      
-      const syncAttribute = () => {
-        db
-          .collection('node_attribute')
-          .doc(String(selectedAttribute.node_attribute_id))
-          .onSnapshot((snapshot, error) => {
-            if (error) {
-              console.log(error);
-            } else {
-              const document = snapshot.data();
-              console.log("Firebase read");
-              if(document){
-                setAttributes(lastAttributes => {
-                  return lastAttributes.map(att => {
-                    if(att.id == document.attributeId){
-                      if(att.value != undefined) att.lastValue = att.value
-                      if(document.attributeValue != undefined) att.value = document.attributeValue
-                    }
-                    return att;
-                  })
-                })
-              }
+        result = result.map(r => [new Date(r.time).valueOf(), Number(r.measure_value)]);
+        setLineChartOptions(lineChartOptions => ({
+          ...lineChartOptions,
+          series: [
+            {
+              type: "area",
+              name: selectedAttribute.name,
+              data: result
             }
-          });
+          ]
+        }))
       }
-      syncAttribute();
-      // eslint-disable-next-line
+      fetchData()
     }
-  }, [selectedAttribute]);
-
-  console.log("modal", {nodeId, attributeId: selectedAttribute?.id})
+  }, [tabIndex, lineChartOptions?.series?.length, selectedAttribute?.id, selectedDateRange?.id]);
+  console.log("modal", { nodeId, attributeId: selectedAttribute?.id })
   return (
     <Paper
       elevation={6}
@@ -338,74 +233,19 @@ export default function NodeDetail() {
             }}>
               <HighchartsReact
                 highcharts={Highcharts}
-                options={options(selectedAttribute, points)}
+                options={lineChartOptions}
               />
             </Box>
           </Box>
         }
         {
           tabIndex === 0 &&
-          attributes?.map((a, idx) => {
+          attributes?.map((attribute, idx) => {
             return (
-              <Paper
-                variant="outlined"
-                square
-                key={`${a.id} - ${idx}`}
-                sx={{
-                  height: "100px",
-                  p: "8px",
-                  minWidth: "100px"
-                }}
-              >
-                <Typography
-                  align="left"
-                  color="text.secondary"
-                  variant="caption"
-                  component="div"
-                >
-                  {a.name}
-                </Typography>
-                <Typography align="left" variant="h4" component="div">
-                  {a.value != undefined ? a.value : "NA"}
-                </Typography>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center"
-                  }}
-                >
-                  {
-                    a.value != undefined &&
-                    a.lastValue != undefined &&
-                    <>
-                      <Typography
-                        align="center"
-                        color={a.value < a.lastValue ? "error.dark" : "success.dark"}
-                        variant="button"
-                        component="div"
-                      >
-                        {a.value < a.lastValue ? "-" : "+"}
-                        {Math.round(
-                          a.value < a.lastValue
-                            ? a.lastValue / a.value
-                            : a.value / a.lastValue
-                        ) + "%"}
-                      </Typography>
-                      <Typography
-                        sx={{ pl: "5px" }}
-                        align="center"
-                        color="text.secondary"
-                        variant="caption"
-                        component="div"
-                      >
-                        {"vs. last read"}
-                      </Typography>
-                    </>
-                  }
-
-                </Box>
-              </Paper>
-            );
+              <NodeDetailAttribute
+                key={`${attribute.id}`}
+                attribute={attribute}
+                setAttributes={setAttributes} />);
           })
         }
       </Paper>
