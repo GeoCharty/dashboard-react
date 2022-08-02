@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import MainContext from './../Context';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
@@ -9,6 +9,7 @@ import Typography from '@mui/material/Typography';
 import InputBase from '@mui/material/InputBase';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
+import FormHelperText from '@mui/material/FormHelperText';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -61,7 +62,6 @@ export default function SearchAppBar() {
     setDashboard
   } = useContext(MainContext);
 
-
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
@@ -84,11 +84,11 @@ export default function SearchAppBar() {
           >
             Dashboard
           </Typography>
-          <Search 
+          <Search
             onKeyPress={(event) => {
               if(event.key === 'Enter'){
                 const value = event.target.value
-                if(value.length > 3){
+                if(value?.length > 3){
                   const targetNode = nodes.find(n => n.id == value);
                   if(targetNode){
                     setDashboard({

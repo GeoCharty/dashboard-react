@@ -39,7 +39,7 @@ const {
 
 export default function NodeDetail() {
   const {
-    lightMode,
+    theme,
     dashboard: {
       selectedNode: {
         id: nodeId,
@@ -74,9 +74,9 @@ export default function NodeDetail() {
   }, [])
 
   useEffect(() => {
-    if (lightMode === 'default') Light(Highcharts);
-    if (lightMode === 'dark' || lightMode === undefined) Dark(Highcharts);
-  }, [lightMode]);
+    if (theme === 'default') Light(Highcharts);
+    if (theme === 'dark' || theme === undefined) Dark(Highcharts);
+  }, [theme]);
 
   useEffect(() => {
     if (
@@ -234,6 +234,10 @@ export default function NodeDetail() {
               <HighchartsReact
                 highcharts={Highcharts}
                 options={lineChartOptions}
+                constructorType = { 'chart' }
+                allowChartUpdate = { true }
+                immutable = { false }
+                updateArgs = { [true, true, true] }
               />
             </Box>
           </Box>

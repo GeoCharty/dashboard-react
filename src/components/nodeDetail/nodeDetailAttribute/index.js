@@ -7,7 +7,7 @@ import FirebaseContext from '../../../services/firebase/context';
 
 export default function NodeDetailAttribute(props) {
   const {
-    lightMode
+    theme
   } = useContext(MainContext);
 
   const { db } = useContext(FirebaseContext);
@@ -82,7 +82,7 @@ export default function NodeDetailAttribute(props) {
           <>
             <Typography
               align="center" 
-              color={`${attributeValue < attributeLastValue ? "error" : "success"}.${lightMode ? "light": "dark"}`}
+              color={`${attributeValue < attributeLastValue ? "error" : "success"}.${theme === "default" ? "light": "dark"}`}
               variant="button"
               component="div"
             >

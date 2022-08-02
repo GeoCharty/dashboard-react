@@ -126,7 +126,6 @@ class App extends React.Component {
   render() {
     const {
       drawerIsOpen,
-      lightMode,
       process,
       theme,
       dashboard
@@ -150,7 +149,6 @@ class App extends React.Component {
         value={{
           drawerIsOpen,
           toogleDrawer,
-          lightMode,
           setTheme,
           setProcess,
           process,
@@ -200,7 +198,7 @@ class App extends React.Component {
 
 const withTheme = (Component) => (props) => {
   const matches = useMediaQuery('(prefers-color-scheme: dark)');
-  return <Component {...props} useDark={matches} />;
+  return <Component {...props} useDark={false} />;
 }
 
 export default withTheme(App);

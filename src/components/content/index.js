@@ -45,9 +45,8 @@ const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
 export default function Content() {
   const {
-    lightMode,
+    theme,
     dashboard: {
-      nodes = [],
       nodesAsFeatures = [],
       selectedNode
     } = {},
@@ -55,19 +54,33 @@ export default function Content() {
   } = useContext(MainContext);
   const mapRef = useRef(null);
 
-  useEffect(() => {
-    if (nodesAsFeatures?.features?.length) {
-      if (nodesAsFeatures?.features?.[0]?.geometry?.coordinates?.length) {
-        mapRef.current.easeTo({
-          center: nodesAsFeatures?.features?.[10]?.geometry?.coordinates.reverse(),
-          zoom: 3,
-          speed: 0.2,
-          curve: 1,
-          duration: 5000,
-        })
-      }
-    }
-  }, [nodesAsFeatures]);
+  // useEffect(() => {
+  //   if(selectedNode && 
+  //     selectedNode.id &&
+  //      mapRef.current){
+  //       mapRef.current.easeTo({
+  //         center: selectedNode.location.coordinates.reverse(),
+  //         zoom: 3,
+  //         speed: 0.2,
+  //         curve: 1,
+  //         duration: 2000,
+  //       })
+  //   }
+  // }, [selectedNode]);
+
+  // useEffect(() => {
+  //   if (nodesAsFeatures?.features?.length) {
+  //     if (nodesAsFeatures?.features?.[0]?.geometry?.coordinates?.length) {
+  //       mapRef.current.easeTo({
+  //         center: nodesAsFeatures?.features?.[10]?.geometry?.coordinates.reverse(),
+  //         zoom: 3,
+  //         speed: 0.2,
+  //         curve: 1,
+  //         duration: 5000,
+  //       })
+  //     }
+  //   }
+  // }, [nodesAsFeatures]);
 
   const onClick = useCallback(event => {
     if (event?.features?.length) {
@@ -92,7 +105,7 @@ export default function Content() {
           mapRef.current.easeTo({
             center: feature.geometry.coordinates,
             zoom,
-            duration: 2000
+            duration: 1000
           });
         });
       }
@@ -103,21 +116,22 @@ export default function Content() {
     <Box sx={{ height: "calc(100vh - 64px)" }}>
       <Box sx={{ height: "100%" }}>
         <Map
+          ref={mapRef}
           initialViewState={{
             latitude: -2.205671,
             longitude: -79.906641,
             zoom: 10
           }}
-          mapStyle={`mapbox://styles/mapbox/${lightMode ? 'streets-v11' : 'dark-v10'}`}
+          mapStyle={`mapbox://styles/mapbox/${theme == "default" ? 'streets-v11' : 'dark-v10'}`}
           mapboxAccessToken={MAPBOX_TOKEN}
           interactiveLayerIds={[clusterLayer.id, unclusteredPointLayer.id]}
           onClick={onClick}
-          ref={mapRef}
+          onError={(error) => {console.log("MAPBOX ERROR: ", error)}}
         >
           <Source
             id="nodes"
             type="geojson"
-            data={nodesAsFeatures}
+            data={nodesAsFeatures || []}
             cluster={true}
             clusterMaxZoom={14}
             clusterRadius={50}
