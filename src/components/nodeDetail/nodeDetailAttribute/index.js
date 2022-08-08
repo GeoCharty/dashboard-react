@@ -4,6 +4,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 import FirebaseContext from '../../../services/firebase/context';
+import moment from "moment";
 
 export default function NodeDetailAttribute(props) {
   const {
@@ -37,7 +38,7 @@ export default function NodeDetailAttribute(props) {
                 return lastAttributes.map(att => {
                   if (att.id === document.attributeId) {
                     if (att.value !== undefined) att.lastValue = att.value
-                    if (document.attributeValue !== undefined) att.value = document.attributeValue
+                    if (document.attributeValue !== undefined) att.value = parseFloat(document.attributeValue.toFixed(2))
                   }
                   return att;
                 })
@@ -55,8 +56,7 @@ export default function NodeDetailAttribute(props) {
       square
       sx={{
         height: "100px",
-        p: "8px",
-        width: "115px"
+        p: "8px"
       }}
     >
       <Typography

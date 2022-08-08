@@ -16,17 +16,17 @@ import CloseIcon from '@mui/icons-material/Close';
 import Highcharts from 'highcharts'
 import Dark from 'highcharts/themes/dark-unica';
 import Light from 'highcharts/themes/brand-light';
+import Grid from '@mui/material/Grid';
 
 import networkServices from "./../../services/network";
 import attributeServices from "./../../services/attribute";
 import pointServices from "./../../services/point";
 import Utils from "./../../utils";
 import NodeDetailAttribute from "./nodeDetailAttribute";
-import LineChartOptions from "./LineChartOptions";
-
 import HighchartsReact from 'highcharts-react-official';
-
 import CONSTANTS from "./../../utils/constants";
+import FirebaseContext from '../../services/firebase/context';
+
 require('highcharts/modules/exporting')(Highcharts)
 require('highcharts/highcharts-more')(Highcharts);
 
@@ -54,13 +54,148 @@ export default function NodeDetail() {
     name: networkName = "Network name"
   } = network || {};
   const [attributes, setAttributes] = useState([]);
-  const [selectedAttribute, selectAttribute] = useState();
+  const [selectedAttribute, selectAttribute] = useState("");
   const [selectedDateRange, selectDateRange] = useState(DATE_RANGE.TODAY);
   const [tabIndex, setTabIndex] = useState(0);
-  const [lineChartOptions, setLineChartOptions] = useState(LineChartOptions);
+  const [lineChartOptions, setLineChartOptions] = useState({
+    chart: {
+      height: (278 / 408 * 100) + '%',
+      zoomType: 'x',
+      style: {
+        fontFamily: 'inherit'
+      },
+      backgroundColor: ""
+    },
+    title: {
+      text: ""
+    },
+    subtitle: {
+      text: "",
+    },
+    yAxis: {
+      title: {
+        text: ""
+      },
+      gridLineWidth: 0.75,
+      gridLineDashStyle: "dash"
+    },
+    xAxis: {
+      type: 'datetime',
+      title: {
+        text: "Time range"
+      },
+      accessibility: {
+        rangeDescription: 'Line chart data'
+      },
+      gridLineWidth: 0.75,
+      gridLineDashStyle: "dash"
+    },
+    credits: {
+      enabled: false
+    },
+    legend: {
+      enabled: false,
+      layout: 'vertical',
+      align: 'right',
+      verticalAlign: 'middle'
+    },
+    plotOptions: {
+      series: {
+        label: {
+          connectorAllowed: false
+        }
+      },
+      area: {
+        fillOpacity: 0.30
+      },
+  
+    },
+    series: [
+      {
+        type: "area"
+      }
+    ],
+    lang: {
+      noData: "No data"
+    },
+    noData: {
+      style: {
+        fontWeight: 'bold',
+        fontSize: '15px',
+        color: '#303030'
+      }
+    },
+    responsive: {
+      rules: [{
+        condition: {
+          maxWidth: 500
+        },
+        chartOptions: {
+          legend: {
+            layout: 'horizontal',
+            align: 'center',
+            verticalAlign: 'bottom'
+          }
+        }
+      }]
+    },
+    exporting: {
+      enabled: true
+    },
+    accessibility: {
+      enabled: false
+    },
+    colors: ["#006064"],
+    tooltip: {
+      style: {
+        backgroundColor: "#1c1c1b"
+      }
+    },
+    time: {
+      timezoneOffset: 10 * 60
+    }
+  });
+  const { db } = useContext(FirebaseContext);
 
   console.log("lineChartOptions", lineChartOptions);
+  console.log("attributes", attributes);
 
+  // useEffect(() => {
+  //   if (selectedAttribute?.node_attribute_id !== undefined) {
+  //     const syncAttribute = () => {
+  //       db
+  //         .collection('node_attribute')
+  //         .doc(String(selectedAttribute?.node_attribute_id))
+  //         .onSnapshot((snapshot, error) => {
+  //           if (error) console.log(error);
+  //           const document = snapshot.data();
+  //           console.log("Firebase read: ", document);
+  //           if (document) {
+  //             setLineChartOptions(lineChartOptions => {
+  //               const newValues = [
+  //                 ...(document.attributeValue && document.timestamps 
+  //                   ? [[document.timestamps, document.attributeValue]]
+  //                   : []),
+  //                 ...(lineChartOptions?.series?.[0]?.data || [])
+  //               ]
+  //               newValues.sort((a, b) => (b[0] - a[0]));
+  //               return {
+  //                 ...lineChartOptions,
+  //                 series: [
+  //                   {
+  //                     ...(lineChartOptions?.series?.[0] || {}),
+  //                     data: newValues
+  //                   }
+  //                 ]
+  //               }
+  //             })
+  //           }
+  //         });
+  //     }
+  //     syncAttribute();
+  //   }
+  // }, [selectedAttribute?.node_attribute_id]);
+  
   useEffect(() => {
     const fetchData = async () => {
       const data = await attributeServices.getByNodeId({ nodeId });
@@ -92,19 +227,19 @@ export default function NodeDetail() {
         attributeId,
         dateRange: getTimestamps(selectedDateRange)
       }
-      console.log("params", params);
 
       const fetchData = async () => {
         const data = await pointServices.getByDateRange(params);
         let {
           result = []
         } = data;
-        result = result.map(r => [new Date(r.time).valueOf(), Number(r.measure_value)]);
+        result = result.map(r => [r.time, parseFloat(Number(r.measure_value).toFixed(2))]);
+        // result.sort((a,b) => (a[0] - b[0]));
         setLineChartOptions(lineChartOptions => ({
           ...lineChartOptions,
           series: [
             {
-              type: "area",
+              ...lineChartOptions?.series?.[0],
               name: selectedAttribute.name,
               data: result
             }
@@ -113,7 +248,7 @@ export default function NodeDetail() {
       }
       fetchData()
     }
-  }, [tabIndex, lineChartOptions?.series?.length, selectedAttribute?.id, selectedDateRange?.id]);
+  }, [tabIndex, selectedAttribute?.id, selectedDateRange?.id]);
   console.log("modal", { nodeId, attributeId: selectedAttribute?.id })
   return (
     <Paper
@@ -180,10 +315,6 @@ export default function NodeDetail() {
         sx={{
           overflowY: "scroll",
           p: "16px",
-          display: "flex",
-          gap: "16px",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
           height: "calc(100% - 184px)"
         }}
       >
@@ -234,23 +365,26 @@ export default function NodeDetail() {
               <HighchartsReact
                 highcharts={Highcharts}
                 options={lineChartOptions}
-                constructorType = { 'chart' }
-                allowChartUpdate = { true }
-                immutable = { false }
-                updateArgs = { [true, true, true] }
+                constructorType={'chart'}
+                allowChartUpdate={true}
+                immutable={false}
+                updateArgs={[true, true, true]}
               />
             </Box>
           </Box>
         }
         {
           tabIndex === 0 &&
-          attributes?.map((attribute, idx) => {
-            return (
-              <NodeDetailAttribute
-                key={`${attribute.id}`}
-                attribute={attribute}
-                setAttributes={setAttributes} />);
-          })
+          <Grid container spacing={2}>
+            {
+              attributes?.map((attribute, idx) => (
+                <Grid key={`${attribute.id}`} item xs={4}>
+                  <NodeDetailAttribute
+                    attribute={attribute}
+                    setAttributes={setAttributes} />
+                </Grid>))
+            }
+          </Grid>
         }
       </Paper>
     </Paper>

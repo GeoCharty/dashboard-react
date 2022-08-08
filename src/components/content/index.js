@@ -47,8 +47,7 @@ export default function Content() {
   const {
     theme,
     dashboard: {
-      nodesAsFeatures = [],
-      selectedNode
+      nodesAsFeatures = []
     } = {},
     setDashboard
   } = useContext(MainContext);

@@ -95,8 +95,8 @@ class App extends React.Component {
   }
 
   async componentDidMount() { 
-    const currentAttributes = await attributeServices.getByOrganizationId({organizationId: "32186570"});
-    const currentNodes = await nodeServices.getByOrganizationId({organizationId: "32186570"});
+    const currentAttributes = await attributeServices.getByOrganizationId({organizationId: "26235671"});
+    const currentNodes = await nodeServices.getByOrganizationId({organizationId: "26235671"});
     const currentAttribute = currentAttributes?.[0];
     const currentDiscretization = await discretizationServices.getByAttributeId(currentAttribute)
     this.setDashboard({

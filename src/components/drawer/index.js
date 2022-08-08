@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import MainContext from './../Context';
 import { styled, useTheme } from '@mui/material/styles';
+import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
@@ -14,7 +15,10 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
-
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 const drawerWidth = 240;
 
 const DrawerHeader = styled('div')(({ theme }) => ({
@@ -28,6 +32,8 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 export default function PersistentDrawerLeft() {
   const {
+    theme,
+    setTheme,
     drawerIsOpen,
     toogleDrawer,
     dashboard: {
@@ -36,7 +42,7 @@ export default function PersistentDrawerLeft() {
     } = {},
     setDashboard
   } = useContext(MainContext);
-  const theme = useTheme();
+  const usedTheme = useTheme();
   const handleDrawerClose = () => {
     toogleDrawer(false);
   };
@@ -57,11 +63,11 @@ export default function PersistentDrawerLeft() {
     >
       <DrawerHeader>
         <IconButton onClick={handleDrawerClose}>
-          {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+          {usedTheme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
         </IconButton>
       </DrawerHeader>
       <Divider />
-      <FormControl>
+      <FormControl sx={{ height: "calc(100% - 128px)" }}>
         {
           attributes?.length > 0
             ? (
@@ -81,7 +87,7 @@ export default function PersistentDrawerLeft() {
                   name="radio-buttons-group"
                   value={selectedAttribute?.id}
                   onChange={
-                    (_, value) => { 
+                    (_, value) => {
                       setDashboard({
                         selectedAttribute: attributes.find(a => a?.id == value)
                       });
@@ -91,13 +97,13 @@ export default function PersistentDrawerLeft() {
                   <List>
                     {
                       attributes.map(attribute => (
-                        <ListItem 
-                          key={attribute.id} 
+                        <ListItem
+                          key={attribute.id}
                           disablePadding>
                           <ListItemButton>
-                            <FormControlLabel 
-                              value={attribute.id} 
-                              control={<Radio />} 
+                            <FormControlLabel
+                              value={attribute.id}
+                              control={<Radio />}
                               label={attribute.name} />
                           </ListItemButton>
                         </ListItem>
@@ -117,6 +123,27 @@ export default function PersistentDrawerLeft() {
             </FormLabel>
         }
       </FormControl>
+      <Divider />
+      <Box sx={{
+        display: "flex", 
+        justifyContent: "center", 
+        mt: "16px",
+        mb: "16px"
+      }}>
+      <ToggleButtonGroup
+        value={theme || "default"}
+        exclusive
+        onChange={(_, newTheme) => {setTheme(newTheme)}}
+        aria-label="selected theme"
+      >
+        <ToggleButton value="default" aria-label="Light">
+          <LightModeIcon />
+        </ToggleButton>
+        <ToggleButton value="dark" aria-label="Dark">
+          <DarkModeIcon />
+        </ToggleButton>
+      </ToggleButtonGroup>
+      </Box>
     </Drawer>
   );
 }
