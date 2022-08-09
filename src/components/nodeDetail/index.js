@@ -31,7 +31,8 @@ require('highcharts/modules/exporting')(Highcharts)
 require('highcharts/highcharts-more')(Highcharts);
 
 const {
-  getTimestamps
+  getTimestamps,
+  convertToLocalTimestamp
 } = Utils;
 const {
   DATE_RANGE
@@ -152,49 +153,48 @@ export default function NodeDetail() {
       }
     },
     time: {
-      timezoneOffset: 10 * 60
+      timezoneOffset: new Date().getTimezoneOffset()
     }
   });
   const { db } = useContext(FirebaseContext);
 
-  console.log("lineChartOptions", lineChartOptions);
-  console.log("attributes", attributes);
 
-  // useEffect(() => {
-  //   if (selectedAttribute?.node_attribute_id !== undefined) {
-  //     const syncAttribute = () => {
-  //       db
-  //         .collection('node_attribute')
-  //         .doc(String(selectedAttribute?.node_attribute_id))
-  //         .onSnapshot((snapshot, error) => {
-  //           if (error) console.log(error);
-  //           const document = snapshot.data();
-  //           console.log("Firebase read: ", document);
-  //           if (document) {
-  //             setLineChartOptions(lineChartOptions => {
-  //               const newValues = [
-  //                 ...(document.attributeValue && document.timestamps 
-  //                   ? [[document.timestamps, document.attributeValue]]
-  //                   : []),
-  //                 ...(lineChartOptions?.series?.[0]?.data || [])
-  //               ]
-  //               newValues.sort((a, b) => (b[0] - a[0]));
-  //               return {
-  //                 ...lineChartOptions,
-  //                 series: [
-  //                   {
-  //                     ...(lineChartOptions?.series?.[0] || {}),
-  //                     data: newValues
-  //                   }
-  //                 ]
-  //               }
-  //             })
-  //           }
-  //         });
-  //     }
-  //     syncAttribute();
-  //   }
-  // }, [selectedAttribute?.node_attribute_id]);
+  useEffect(() => {
+    if (selectedAttribute?.node_attribute_id !== undefined) {
+      const syncAttribute = () => {
+        db
+          .collection('node_attribute')
+          .doc(String(selectedAttribute?.node_attribute_id))
+          .onSnapshot((snapshot, error) => {
+            if (error) console.log(error);
+            const document = snapshot.data();
+
+            console.log("Firebase read: ", document);
+            if (document) {
+              setLineChartOptions(lineChartOptions => {
+                const newValues = [
+                  ...(document.attributeValue && document.timestamps 
+                    ? [[document.timestamps, document.attributeValue]]
+                    : []),
+                  ...(lineChartOptions?.series?.[0]?.data || [])
+                ]
+                let v = newValues.sort((a, b) => (b[0] - a[0]));
+                return {
+                  ...lineChartOptions,
+                  series: [
+                    {
+                      ...(lineChartOptions?.series?.[0] || {}),
+                      data: v
+                    }
+                  ]
+                }
+              })
+            }
+          });
+      }
+      syncAttribute();
+    }
+  }, [selectedAttribute?.node_attribute_id]);
   
   useEffect(() => {
     const fetchData = async () => {
@@ -233,8 +233,11 @@ export default function NodeDetail() {
         let {
           result = []
         } = data;
-        result = result.map(r => [r.time, parseFloat(Number(r.measure_value).toFixed(2))]);
-        // result.sort((a,b) => (a[0] - b[0]));
+        result = result.map(r => {
+          const rTime = convertToLocalTimestamp(r.time);
+          return [rTime, parseFloat(Number(r.measure_value).toFixed(2))]
+        });
+        
         setLineChartOptions(lineChartOptions => ({
           ...lineChartOptions,
           series: [

@@ -50,7 +50,15 @@ const getTimestamps = (dateRange) => {
   }
 }
 
+const convertToLocalTimestamp = (millis) => {
+  const date = new Date(millis);
+  const offsetHours = new Date().getTimezoneOffset()/60;
+  date.setHours(date.getHours() - offsetHours);
+  return date.valueOf();
+}
+
 module.exports = {
   getFeatureCollection,
-  getTimestamps
+  getTimestamps,
+  convertToLocalTimestamp
 }
