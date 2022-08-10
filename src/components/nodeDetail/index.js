@@ -160,57 +160,57 @@ export default function NodeDetail() {
   const { db } = useContext(FirebaseContext);
 
 
-  useEffect(() => {
-    let unsubscribe = null;
-    if (selectedAttribute?.node_attribute_id !== undefined) {
-      unsubscribe = db
-          .collection('node_attribute')
-          .doc(String(selectedAttribute?.node_attribute_id))
-          .onSnapshot((snapshot, error) => {
-            if (error) console.log(error);
-            const document = snapshot.data();
-            console.log("Firebase read Historical: ");
-            if (
-              document && 
-              document.attributeValue !== undefined && 
-              document.attributeValue !== null &&
-              document.timestamps !== undefined &&
-              document.timestamps !== null
-            ) {
-              setLineChartOptions(lineChartOptions => {
-                const newValues = lineChartOptions?.series?.[0]?.data || []
-                if(document.timestamps != newValues[0]?.[0]){
-                  newValues.push([
-                    document.timestamps,
-                    parseFloat(Number(document.attributeValue).toFixed(2))
-                  ]);
-                  newValues.sort((a, b) => {
-                    return b[0] - a[0]
-                  });
-                  console.log('V Result: ', newValues);
-                  return {
-                    ...lineChartOptions,
-                    series: [
-                      {
-                        ...(lineChartOptions?.series?.[0] || {}),
-                        data: newValues
-                      }
-                    ]
-                  }
-                } else {
-                  return lineChartOptions
-                }
-              })
-            }
-          });
-    }
-    return () => {
-      if (unsubscribe) {
-        console.log("Firebase unsubscribe Historical: ");
-        unsubscribe();
-      }
-    }
-  }, [trigger]);
+  // useEffect(() => {
+  //   let unsubscribe = null;
+  //   if (selectedAttribute?.node_attribute_id !== undefined) {
+  //     unsubscribe = db
+  //         .collection('node_attribute')
+  //         .doc(String(selectedAttribute?.node_attribute_id))
+  //         .onSnapshot((snapshot, error) => {
+  //           if (error) console.log(error);
+  //           const document = snapshot.data();
+  //           console.log("Firebase read Historical: ");
+  //           if (
+  //             document && 
+  //             document.attributeValue !== undefined && 
+  //             document.attributeValue !== null &&
+  //             document.timestamps !== undefined &&
+  //             document.timestamps !== null
+  //           ) {
+  //             setLineChartOptions(lineChartOptions => {
+  //               const newValues = lineChartOptions?.series?.[0]?.data || []
+  //               if(document.timestamps != newValues[0]?.[0]){
+  //                 newValues.push([
+  //                   document.timestamps,
+  //                   parseFloat(Number(document.attributeValue).toFixed(2))
+  //                 ]);
+  //                 newValues.sort((a, b) => {
+  //                   return b[0] - a[0]
+  //                 });
+  //                 console.log('V Result: ', newValues);
+  //                 return {
+  //                   ...lineChartOptions,
+  //                   series: [
+  //                     {
+  //                       ...(lineChartOptions?.series?.[0] || {}),
+  //                       data: newValues
+  //                     }
+  //                   ]
+  //                 }
+  //               } else {
+  //                 return lineChartOptions
+  //               }
+  //             })
+  //           }
+  //         });
+  //   }
+  //   return () => {
+  //     if (unsubscribe) {
+  //       console.log("Firebase unsubscribe Historical: ");
+  //       unsubscribe();
+  //     }
+  //   }
+  // }, [trigger]);
   
   useEffect(() => {
     const fetchData = async () => {
@@ -246,7 +246,6 @@ export default function NodeDetail() {
       }
 
       const fetchData = async () => {
-        console.log('1');
         const data = await pointServices.getByDateRange(params);
         let {
           result = []
@@ -258,7 +257,6 @@ export default function NodeDetail() {
         result.sort((a, b) => {
           return b[0] - a[0]
         });
-        console.log('RESULT: ', result);
         setLineChartOptions(lineChartOptions => ({
           ...lineChartOptions,
           series: [
@@ -269,14 +267,13 @@ export default function NodeDetail() {
             }
           ]
         }))
-        console.log('2');
         setTrigger(!trigger);
       }
       fetchData()
     }      
     return () => {
       if(selectedAttribute?.id !== undefined && tabIndex == 1){
-        console.log('AQUI ME DESUSB¿CRIBIRIA');
+        // console.log('AQUI ME DESUSB¿CRIBIRIA');
       }
     }
   }, [tabIndex, selectedAttribute?.id, selectedDateRange?.id]);
