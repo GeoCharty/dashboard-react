@@ -33,7 +33,7 @@ const unclusteredPointLayer = {
   source: 'nodes',
   filter: ['!', ['has', 'point_count']],
   paint: {
-    'circle-color': '#11b4da',
+    'circle-color': ['get', 'color'],
     'circle-radius': 8,
     'circle-stroke-width': 1,
     'circle-stroke-color': '#fff'
@@ -52,7 +52,7 @@ export default function Content() {
     setDashboard
   } = useContext(MainContext);
   const mapRef = useRef(null);
-
+  
   // useEffect(() => {
   //   if(selectedNode && 
   //     selectedNode.id &&

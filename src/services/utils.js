@@ -8,11 +8,15 @@ export async function abstractRequest(params, abortSignal) {
     method,
     defaultValue
   } = params;
+  
   let response;
   try {
     response = await fetch(url, {
       method,
-      body: payload,
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload),
       signal: abortSignal
     });
     response = await response.text();

@@ -11,10 +11,7 @@ const getFeatureCollection = (data) => {
       return {
         "type": "Feature",
         "properties": otherProps,
-        "geometry": {
-          ...location,
-          coordinates: location.coordinates.reverse()
-        }
+        "geometry": location
       }
     }) : []
   }
@@ -52,13 +49,46 @@ const getTimestamps = (dateRange) => {
 
 const convertToLocalTimestamp = (millis) => {
   const date = new Date(millis);
-  const offsetHours = new Date().getTimezoneOffset()/60;
+  const offsetHours = new Date().getTimezoneOffset() / 60;
   date.setHours(date.getHours() - offsetHours);
   return date.valueOf();
+}
+
+const getColorByLastValue = (lastValue, queries) => {
+  let value = true;
+  lastValue = Number(lastValue.toFixed(2))
+  for (const {query, result} of queries) {
+    value = true
+    for (const q in query) {
+      if (q === "$eq" &&
+        lastValue !== query[q]) {
+          value = false
+      }
+      if (q === "$lt" &&
+        lastValue >= query[q]) {
+          value = false
+      }
+      if (q === "$gt" &&
+        lastValue <= query[q]) {
+          value = false
+      }
+      if (q === "$lte" &&
+        lastValue > query[q]) {
+          value = false
+      }
+      if (q === "$gte" &&
+        lastValue < query[q]) {
+          value = false
+      }
+    }
+    if(value) return result.color || '#11b4da'
+  }
+  return '#11b4da';
 }
 
 module.exports = {
   getFeatureCollection,
   getTimestamps,
-  convertToLocalTimestamp
+  convertToLocalTimestamp,
+  getColorByLastValue
 }

@@ -9,10 +9,14 @@ import Typography from "@mui/material/Typography";
 export default function OutlinedCard() {
   const {
     dashboard: {
-      discretization = {}
+      selectedAttribute = {},
+      discretizationMap = {} 
     } = {}
   } = useContext(MainContext);
-
+  console.log("des", selectedAttribute,discretizationMap)
+  const currentDiscretizations = discretizationMap?.[selectedAttribute?.id] || [];
+  const discretization = currentDiscretizations?.[0] || {}
+  
   return (
     <Box sx={{
       minWidth: 275,
@@ -20,7 +24,7 @@ export default function OutlinedCard() {
       position: 'fixed',
       bottom: '24px',
       right: '24px',
-      zIndex: "9999"
+      zIndex: "999"
     }}>
       <Card variant="outlined">
         <CardContent>
