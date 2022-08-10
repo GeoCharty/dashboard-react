@@ -252,7 +252,7 @@ export default function NodeDetail() {
       fetchData()
     }
   }, [tabIndex, selectedAttribute?.id, selectedDateRange?.id]);
-  console.log("modal", { nodeId, attributeId: selectedAttribute?.id })
+  // console.log("modal", { nodeId, attributeId: selectedAttribute?.id })
   return (
     <Paper
       elevation={6}

@@ -13,7 +13,6 @@ export default function OutlinedCard() {
       discretizationMap = {} 
     } = {}
   } = useContext(MainContext);
-  console.log("des", selectedAttribute,discretizationMap)
   const currentDiscretizations = discretizationMap?.[selectedAttribute?.id] || [];
   const discretization = currentDiscretizations?.[0] || {}
   

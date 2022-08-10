@@ -4,15 +4,20 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 import FirebaseContext from '../../../services/firebase/context';
-import moment from "moment";
-import {
-  getColorByLastValue
-} from "./../../../utils";
+// import {
+//   getColorByLastValue
+// } from "./../../../utils";
 
 export default function NodeDetailAttribute(props) {
   const {
-    theme
+    theme,
+    // dashboard: {
+    //   selectedAttribute = {},
+    //   discretizationMap = {} 
+    // } = {}
   } = useContext(MainContext);
+  // const currentDiscretizations = discretizationMap?.[selectedAttribute?.id] || [];
+  // const discretization = currentDiscretizations?.[0] || {}
 
   const { db } = useContext(FirebaseContext);
   const {
@@ -59,7 +64,8 @@ export default function NodeDetailAttribute(props) {
       square
       sx={{
         height: "100px",
-        p: "8px"
+        p: "8px",
+        // backgroundColor: getColorByLastValue(attributeValue, discretization?.map || [])
       }}
     >
       <Typography
