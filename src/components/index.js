@@ -25,11 +25,14 @@ import Header from './../components/header';
 import Drawer from './../components/drawer';
 import Content from './../components/content';
 import NodeDetail from './../components/nodeDetail';
+import Async from "async";
 
 import {
   getFeatureCollection,
   getColorByLastValue
 } from "./../utils";
+
+const organizationId = process.env.REACT_APP_ORGANIZATION_ID;
 
 class App extends React.Component {
   state = {
@@ -49,7 +52,8 @@ class App extends React.Component {
       attributes: [],
       nodes: [],
       discretization: {},
-      selectedNode: undefined
+      selectedNode: undefined,
+      discretizationMap: {}
     }
   }
 
@@ -97,8 +101,18 @@ class App extends React.Component {
   }
 
   async componentDidMount() {
-    const currentAttributes = await attributeServices.getByOrganizationId({ organizationId: "26235671" });
-    let currentNodes = await nodeServices.getByOrganizationId({ organizationId: "26235671" });
+    const currentAttributes = await attributeServices.getByOrganizationId({ organizationId });
+   
+
+    const currentAttributesMap = currentAttributes.reduce((complete, c) => ({...complete, [c.id]: c}), {});
+    const currentDiscretizationsMap = await Async.mapValues(
+      currentAttributesMap, 
+      async(attribute) => {
+        return await discretizationServices.getByAttributeId(attribute);
+      }
+    );
+
+    let currentNodes = await nodeServices.getByOrganizationId({ organizationId });
     //fallback for mapbox location handling
     currentNodes = currentNodes.map(c => ({
       ...c,
@@ -107,8 +121,9 @@ class App extends React.Component {
         coordinates: c.location.coordinates.reverse()
       }
     }));
+
     const currentAttribute = currentAttributes?.[0];
-    const currentDiscretizations = await discretizationServices.getByAttributeId(currentAttribute)
+    const currentDiscretizations = currentDiscretizationsMap?.[currentAttribute.id];
     const currentDiscretization = currentDiscretizations?.[0]
     const lastNodeValues = await pointServices.getLastValues({
       nodeIds: currentNodes.map(c => c.id),
@@ -127,9 +142,9 @@ class App extends React.Component {
     })
 
     this.setDashboard({
-      selectedAttribute: currentAttribute,
       attributes: currentAttributes || [],
-      discretization: currentDiscretization || {},
+      selectedAttribute: currentAttribute,
+      discretizationMap: currentDiscretizationsMap || {},
       nodes: currentNodes || [],
       nodesAsFeatures: getFeatureCollection(currentNodes || [])
     });
@@ -144,7 +159,7 @@ class App extends React.Component {
     if (prevState.dashboard?.selectedAttribute?.id !== undefined &&
       prevState.dashboard?.selectedAttribute?.id !== 
       this.state.dashboard?.selectedAttribute?.id) {
-      const currentDiscretizations = await discretizationServices.getByAttributeId(this.state.dashboard?.selectedAttribute)
+      const currentDiscretizations = this.state.dashboard?.discretizationMap?.[this.state.dashboard?.selectedAttribute?.id]
       const currentDiscretization = currentDiscretizations?.[0]
       
       let currentNodes = this.state.dashboard.nodes;
