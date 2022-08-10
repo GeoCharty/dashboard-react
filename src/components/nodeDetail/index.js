@@ -50,6 +50,7 @@ export default function NodeDetail() {
     } = {},
     setDashboard
   } = useContext(MainContext);
+  const [trigger, setTrigger] = useState(false);
   const [network, setNetwork] = useState();
   const {
     name: networkName = "Network name"
@@ -113,7 +114,7 @@ export default function NodeDetail() {
     },
     series: [
       {
-        type: "area"
+        type: "area",
       }
     ],
     lang: {
@@ -160,41 +161,56 @@ export default function NodeDetail() {
 
 
   useEffect(() => {
+    let unsubscribe = null;
     if (selectedAttribute?.node_attribute_id !== undefined) {
-      const syncAttribute = () => {
-        db
+      unsubscribe = db
           .collection('node_attribute')
           .doc(String(selectedAttribute?.node_attribute_id))
           .onSnapshot((snapshot, error) => {
             if (error) console.log(error);
             const document = snapshot.data();
-
-            console.log("Firebase read: ", document);
-            if (document) {
+            console.log("Firebase read Historical: ");
+            if (
+              document && 
+              document.attributeValue !== undefined && 
+              document.attributeValue !== null &&
+              document.timestamps !== undefined &&
+              document.timestamps !== null
+            ) {
               setLineChartOptions(lineChartOptions => {
-                const newValues = [
-                  ...(document.attributeValue && document.timestamps 
-                    ? [[document.timestamps, document.attributeValue]]
-                    : []),
-                  ...(lineChartOptions?.series?.[0]?.data || [])
-                ]
-                let v = newValues.sort((a, b) => (b[0] - a[0]));
-                return {
-                  ...lineChartOptions,
-                  series: [
-                    {
-                      ...(lineChartOptions?.series?.[0] || {}),
-                      data: v
-                    }
-                  ]
+                const newValues = lineChartOptions?.series?.[0]?.data || []
+                if(document.timestamps != newValues[0]?.[0]){
+                  newValues.push([
+                    document.timestamps,
+                    parseFloat(Number(document.attributeValue).toFixed(2))
+                  ]);
+                  newValues.sort((a, b) => {
+                    return b[0] - a[0]
+                  });
+                  console.log('V Result: ', newValues);
+                  return {
+                    ...lineChartOptions,
+                    series: [
+                      {
+                        ...(lineChartOptions?.series?.[0] || {}),
+                        data: newValues
+                      }
+                    ]
+                  }
+                } else {
+                  return lineChartOptions
                 }
               })
             }
           });
-      }
-      syncAttribute();
     }
-  }, [selectedAttribute?.node_attribute_id]);
+    return () => {
+      if (unsubscribe) {
+        console.log("Firebase unsubscribe Historical: ");
+        unsubscribe();
+      }
+    }
+  }, [trigger]);
   
   useEffect(() => {
     const fetchData = async () => {
@@ -205,7 +221,7 @@ export default function NodeDetail() {
       const data2 = await networkServices.getByNodeId({ nodeId });
       setNetwork(data2?.[0]);
     }
-    fetchData()
+    fetchData()  
   }, [])
 
   useEffect(() => {
@@ -217,7 +233,8 @@ export default function NodeDetail() {
     if (
       selectedAttribute?.id !== undefined &&
       selectedDateRange?.id !== undefined &&
-      tabIndex == 1) {
+      tabIndex == 1
+    ) {
       const {
         id: attributeId
       } = selectedAttribute;
@@ -229,6 +246,7 @@ export default function NodeDetail() {
       }
 
       const fetchData = async () => {
+        console.log('1');
         const data = await pointServices.getByDateRange(params);
         let {
           result = []
@@ -237,7 +255,10 @@ export default function NodeDetail() {
           const rTime = convertToLocalTimestamp(r.time);
           return [rTime, parseFloat(Number(r.measure_value).toFixed(2))]
         });
-        
+        result.sort((a, b) => {
+          return b[0] - a[0]
+        });
+        console.log('RESULT: ', result);
         setLineChartOptions(lineChartOptions => ({
           ...lineChartOptions,
           series: [
@@ -248,8 +269,15 @@ export default function NodeDetail() {
             }
           ]
         }))
+        console.log('2');
+        setTrigger(!trigger);
       }
       fetchData()
+    }      
+    return () => {
+      if(selectedAttribute?.id !== undefined && tabIndex == 1){
+        console.log('AQUI ME DESUSB¿CRIBIRIA');
+      }
     }
   }, [tabIndex, selectedAttribute?.id, selectedDateRange?.id]);
   // console.log("modal", { nodeId, attributeId: selectedAttribute?.id })
