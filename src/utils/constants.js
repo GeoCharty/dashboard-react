@@ -35,3 +35,16 @@ module.exports = {
   DATE_RANGE,
   TIME_ZONE
 }
+
+// [
+//   {
+//       "last": "48.0001",
+//       "attribute_id": "64153698",
+//       "node_id": "97248411"
+//   },
+//   {
+//       "last": "4.0001",
+//       "attribute_id": "64153698",
+//       "node_id": "17384172"
+//   }
+// ]

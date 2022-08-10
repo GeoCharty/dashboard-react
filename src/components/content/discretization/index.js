@@ -12,7 +12,7 @@ export default function OutlinedCard() {
       discretization = {}
     } = {}
   } = useContext(MainContext);
-
+// console.log("discretization: ", discretization);
   return (
     <Box sx={{
       minWidth: 275,
