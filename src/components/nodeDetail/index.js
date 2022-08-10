@@ -260,14 +260,13 @@ export default function NodeDetail() {
         position: "absolute",
         top: "calc((100vh - 550px) / 2)",
         left: "calc((100vw - 450px) / 2)",
-        zIndex: "100",
+        zIndex: "999",
         width: "450px",
         height: "550px",
         maxWidth: "450px",
         maxHeight: "550px",
         pt: "16px",
-        boxSizing: "border-box",
-        zIndex: 1000
+        boxSizing: "border-box"
       }}
     >
       <IconButton aria-label="delete" sx={{

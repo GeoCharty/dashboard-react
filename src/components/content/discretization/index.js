@@ -12,7 +12,7 @@ export default function OutlinedCard() {
       discretization = {}
     } = {}
   } = useContext(MainContext);
-// console.log("discretization: ", discretization);
+  
   return (
     <Box sx={{
       minWidth: 275,
@@ -20,7 +20,7 @@ export default function OutlinedCard() {
       position: 'fixed',
       bottom: '24px',
       right: '24px',
-      zIndex: "9999"
+      zIndex: "999"
     }}>
       <Card variant="outlined">
         <CardContent>

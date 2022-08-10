@@ -5,6 +5,9 @@ import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 import FirebaseContext from '../../../services/firebase/context';
 import moment from "moment";
+import {
+  getColorByLastValue
+} from "./../../../utils";
 
 export default function NodeDetailAttribute(props) {
   const {

@@ -52,7 +52,7 @@ export default function Content() {
     setDashboard
   } = useContext(MainContext);
   const mapRef = useRef(null);
-  console.log("map: ", nodesAsFeatures);
+  
   // useEffect(() => {
   //   if(selectedNode && 
   //     selectedNode.id &&

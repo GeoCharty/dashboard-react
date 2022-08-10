@@ -107,9 +107,9 @@ class App extends React.Component {
         coordinates: c.location.coordinates.reverse()
       }
     }));
-    const currentAttribute = currentAttributes?.[1];
-    const currentDiscretization = await discretizationServices.getByAttributeId(currentAttribute)
-
+    const currentAttribute = currentAttributes?.[0];
+    const currentDiscretizations = await discretizationServices.getByAttributeId(currentAttribute)
+    const currentDiscretization = currentDiscretizations?.[0]
     const lastNodeValues = await pointServices.getLastValues({
       nodeIds: currentNodes.map(c => c.id),
       attributeId: currentAttribute.id
@@ -122,14 +122,14 @@ class App extends React.Component {
       return {
         ...c,
         lastValue: Number(lastValue),
-        color: getColorByLastValue(Number(lastValue), currentDiscretization?.[0]?.map || [])
+        color: getColorByLastValue(Number(lastValue), currentDiscretization.map || [])
       }
     })
 
     this.setDashboard({
       selectedAttribute: currentAttribute,
       attributes: currentAttributes || [],
-      discretization: currentDiscretization?.[0] || {},
+      discretization: currentDiscretization || {},
       nodes: currentNodes || [],
       nodesAsFeatures: getFeatureCollection(currentNodes || [])
     });
@@ -146,7 +146,7 @@ class App extends React.Component {
       this.state.dashboard?.selectedAttribute?.id) {
       const currentDiscretizations = await discretizationServices.getByAttributeId(this.state.dashboard?.selectedAttribute)
       const currentDiscretization = currentDiscretizations?.[0]
-      console.log("currentDiscretization", currentDiscretization);
+      
       let currentNodes = this.state.dashboard.nodes;
 
       const lastNodeValues = await pointServices.getLastValues({
@@ -161,7 +161,7 @@ class App extends React.Component {
         return {
           ...c,
           lastValue: Number(lastValue),
-          color: getColorByLastValue(Number(lastValue), currentDiscretization?.[0]?.map || [])
+          color: getColorByLastValue(Number(lastValue), currentDiscretization.map || [])
         }
       })
       
