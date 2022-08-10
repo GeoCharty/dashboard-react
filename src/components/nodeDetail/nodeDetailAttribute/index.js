@@ -23,16 +23,15 @@ export default function NodeDetailAttribute(props) {
   } = props;
 
   useEffect(() => {
-
+    let unsubscribe = null;
     if (nodeAttributeId !== undefined) {
-      const syncAttribute = () => {
-        db
+        unsubscribe = db
           .collection('node_attribute')
           .doc(String(nodeAttributeId))
           .onSnapshot((snapshot, error) => {
             if (error) console.log(error);
             const document = snapshot.data();
-            console.log("Firebase read");
+            console.log("Firebase read realtime");
             if (document) {
               setAttributes(lastAttributes => {
                 return lastAttributes.map(att => {
@@ -46,7 +45,8 @@ export default function NodeDetailAttribute(props) {
             }
           });
       }
-      syncAttribute();
+    return () => {
+      if (unsubscribe) unsubscribe();
     }
   }, []);
 
