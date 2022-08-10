@@ -254,9 +254,9 @@ export default function NodeDetail() {
           const rTime = convertToLocalTimestamp(r.time);
           return [rTime, parseFloat(Number(r.measure_value).toFixed(2))]
         });
-        result.sort((a, b) => {
-          return b[0] - a[0]
-        });
+        // result.sort((a, b) => {
+        //   return b[0] - a[0]
+        // });
         setLineChartOptions(lineChartOptions => ({
           ...lineChartOptions,
           series: [

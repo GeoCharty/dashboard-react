@@ -13,7 +13,7 @@ const getByDateRange = async(params, abortSignal) => {
       from,
       to
     },
-    sort = "desc"
+    sort = "asc"
   } = params || {};
 
   const urlParams = new URLSearchParams({
