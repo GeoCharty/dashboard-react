@@ -35,6 +35,31 @@ const getByDateRange = async(params, abortSignal) => {
 
   return abstractRequest(requestParams, abortSignal);
 } 
+
+
+const getLastValues = async(params, abortSignal) => {
+  const {
+    nodeIds,
+    attributeId
+  } = params || {};
+
+  const url = new URL(`/${CORE_ENTITY}/lastValues`, API_URL);
+  
+  const requestParams = {
+    ...params,
+    method: 'POST',
+    payload: {
+      nodeIds,
+      attributeId
+    },
+    url: url.toString(),
+    defaultValue: []
+  }
+
+  return abstractRequest(requestParams, abortSignal);
+} 
+
 module.exports = {
-  getByDateRange
+  getByDateRange,
+  getLastValues
 }

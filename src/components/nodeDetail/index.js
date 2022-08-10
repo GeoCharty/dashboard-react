@@ -266,7 +266,8 @@ export default function NodeDetail() {
         maxWidth: "450px",
         maxHeight: "550px",
         pt: "16px",
-        boxSizing: "border-box"
+        boxSizing: "border-box",
+        zIndex: 1000
       }}
     >
       <IconButton aria-label="delete" sx={{

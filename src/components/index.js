@@ -18,6 +18,7 @@ import Themes from './../themes';
 import attributeServices from "./../services/attribute";
 import nodeServices from "./../services/node";
 import discretizationServices from "./../services/attributeDiscretization";
+import pointServices from "./../services/point";
 
 //components
 import Header from './../components/header';
@@ -26,7 +27,8 @@ import Content from './../components/content';
 import NodeDetail from './../components/nodeDetail';
 
 import {
-  getFeatureCollection
+  getFeatureCollection,
+  getColorByLastValue
 } from "./../utils";
 
 class App extends React.Component {
@@ -67,7 +69,7 @@ class App extends React.Component {
       setState
     } = this;
     const {
-      process 
+      process
     } = state;
     setState({
       ...state,
@@ -94,11 +96,36 @@ class App extends React.Component {
     })
   }
 
-  async componentDidMount() { 
-    const currentAttributes = await attributeServices.getByOrganizationId({organizationId: "26235671"});
-    const currentNodes = await nodeServices.getByOrganizationId({organizationId: "26235671"});
-    const currentAttribute = currentAttributes?.[0];
+  async componentDidMount() {
+    const currentAttributes = await attributeServices.getByOrganizationId({ organizationId: "26235671" });
+    let currentNodes = await nodeServices.getByOrganizationId({ organizationId: "26235671" });
+    //fallback for mapbox location handling
+    currentNodes = currentNodes.map(c => ({
+      ...c,
+      location: {
+        ...c.location,
+        coordinates: c.location.coordinates.reverse()
+      }
+    }));
+    const currentAttribute = currentAttributes?.[1];
     const currentDiscretization = await discretizationServices.getByAttributeId(currentAttribute)
+
+    const lastNodeValues = await pointServices.getLastValues({
+      nodeIds: currentNodes.map(c => c.id),
+      attributeId: currentAttribute.id
+    });
+
+    currentNodes = currentNodes.map(c => {
+      const {
+        last: lastValue
+      } = lastNodeValues.find(l => l.node_id == c.id) || {}
+      return {
+        ...c,
+        lastValue: Number(lastValue),
+        color: getColorByLastValue(Number(lastValue), currentDiscretization?.[0]?.map || [])
+      }
+    })
+
     this.setDashboard({
       selectedAttribute: currentAttribute,
       attributes: currentAttributes || [],
@@ -114,12 +141,35 @@ class App extends React.Component {
         theme: this.props.useDark ? 'dark' : 'default'
       });
     }
-    if (prevState.dashboard?.selectedAttribute?.id !== this.state.dashboard?.selectedAttribute?.id) {
+    if (prevState.dashboard?.selectedAttribute?.id !== undefined &&
+      prevState.dashboard?.selectedAttribute?.id !== 
+      this.state.dashboard?.selectedAttribute?.id) {
       const currentDiscretizations = await discretizationServices.getByAttributeId(this.state.dashboard?.selectedAttribute)
       const currentDiscretization = currentDiscretizations?.[0]
-      this.setDashboard({
-        discretization: currentDiscretization || {}
+      console.log("currentDiscretization", currentDiscretization);
+      let currentNodes = this.state.dashboard.nodes;
+
+      const lastNodeValues = await pointServices.getLastValues({
+        nodeIds: currentNodes.map(c => c.id),
+        attributeId: this.state.dashboard?.selectedAttribute?.id
+      });
+   
+      currentNodes = currentNodes.map(c => {
+        const {
+          last: lastValue
+        } = lastNodeValues.find(l => l.node_id == c.id) || {}
+        return {
+          ...c,
+          lastValue: Number(lastValue),
+          color: getColorByLastValue(Number(lastValue), currentDiscretization?.[0]?.map || [])
+        }
       })
+      
+      this.setDashboard({
+        discretization: currentDiscretization || {},
+        nodes: currentNodes || [],
+        nodesAsFeatures: getFeatureCollection(currentNodes || [])
+      });
     }
   }
 
@@ -142,55 +192,55 @@ class App extends React.Component {
       isLoading,
       progress
     } = process
-    
+
     return (
       <FirebaseProvider>
-      <MainContext.Provider
-        value={{
-          drawerIsOpen,
-          toogleDrawer,
-          setTheme,
-          setProcess,
-          process,
-          theme,
-          dashboard,
-          setDashboard
-        }}>
-        <ThemeProvider theme={Themes[theme]}>
-          <SnackbarProvider preventDuplicate maxSnack={3}>
-            <Paper
-              square
-              sx={{
-                minHeight: '100%',
-                display: "initial",
-                transform: 'translateZ(0px)',
-                flexGrow: 1,
-              }}>
-              {
-                isLoading &&
-                <LinearProgress
-                  sx={{
-                    height: "4px",
-                    zIndex: "999",
-                    position: "fixed",
-                    width: "100%"
-                  }}
-                  variant={progress.variant}
-                  value={progress.value}
-                  color={progress.color} />
-              }
-              {
-                dashboard.selectedNode && 
-                <NodeDetail />
-              }
-              <Header />
-              <Drawer />
-              <Content />
-              
-            </Paper>
-          </SnackbarProvider>
-        </ThemeProvider>
-      </MainContext.Provider>
+        <MainContext.Provider
+          value={{
+            drawerIsOpen,
+            toogleDrawer,
+            setTheme,
+            setProcess,
+            process,
+            theme,
+            dashboard,
+            setDashboard
+          }}>
+          <ThemeProvider theme={Themes[theme]}>
+            <SnackbarProvider preventDuplicate maxSnack={3}>
+              <Paper
+                square
+                sx={{
+                  minHeight: '100%',
+                  display: "initial",
+                  transform: 'translateZ(0px)',
+                  flexGrow: 1,
+                }}>
+                {
+                  isLoading &&
+                  <LinearProgress
+                    sx={{
+                      height: "4px",
+                      zIndex: "999",
+                      position: "fixed",
+                      width: "100%"
+                    }}
+                    variant={progress.variant}
+                    value={progress.value}
+                    color={progress.color} />
+                }
+                {
+                  dashboard.selectedNode &&
+                  <NodeDetail />
+                }
+                <Header />
+                <Drawer />
+                <Content />
+
+              </Paper>
+            </SnackbarProvider>
+          </ThemeProvider>
+        </MainContext.Provider>
       </FirebaseProvider>
     )
   }
