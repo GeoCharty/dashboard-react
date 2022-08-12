@@ -86,9 +86,49 @@ const getColorByLastValue = (lastValue, queries) => {
   return '#11b4da';
 }
 
+const queryToString = (query) => {
+
+  if(Object.keys(query).length == 1){
+    if(query.hasOwnProperty("$eq")){
+      return ` = ${query.$eq}`
+    }
+    if(query.hasOwnProperty("$gte")){
+      return `[${query.$gte}, inf)`
+    }
+    if(query.hasOwnProperty("$lte")){
+      return `(-inf, ${query.$lte}]`
+    }
+    if(query.hasOwnProperty("$gt")){
+      return `(${query.$gt}, inf)`
+    }
+    if(query.hasOwnProperty("$lt")){
+      return `(-inf, ${query.$lt})`
+    }
+  }else{
+    if(query.hasOwnProperty("$gte") &&
+    query.hasOwnProperty("$lte")){
+      return `(${query.$gte}, ${query.$lte})`
+    }
+    if(query.hasOwnProperty("$gt") &&
+    query.hasOwnProperty("$lt")){
+      return `[${query.$gt}, ${query.$lt}]`
+    }
+    if(query.hasOwnProperty("$gt") &&
+    query.hasOwnProperty("$lte")){
+      return `[${query.$gt}, ${query.$lte})`
+    }
+    if(query.hasOwnProperty("$gte") &&
+    query.hasOwnProperty("$lt")){
+      return `(${query.$gte}, ${query.$lt}]`
+    }
+  }
+  return '';
+}
+
 module.exports = {
   getFeatureCollection,
   getTimestamps,
   convertToLocalTimestamp,
-  getColorByLastValue
+  getColorByLastValue,
+  queryToString
 }

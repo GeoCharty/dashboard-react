@@ -78,7 +78,7 @@ export default function PersistentDrawerLeft() {
                     textAlign: "center",
                     paddingTop: "12px"
                   }}>
-                  Select a metric
+                  Selecciona una variable QoS 
                 </FormLabel>
 
                 <RadioGroup
@@ -119,7 +119,7 @@ export default function PersistentDrawerLeft() {
                 textAlign: "center",
                 paddingTop: "12px"
               }}>
-              No metrics to select
+              No hay variables QoS
             </FormLabel>
         }
       </FormControl>

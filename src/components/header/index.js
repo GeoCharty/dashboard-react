@@ -82,7 +82,7 @@ export default function SearchAppBar() {
             component="div"
             sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
           >
-            Dashboard
+            Tablero de redes ESPOL
           </Typography>
           <Search
             onKeyPress={(event) => {
