@@ -10,7 +10,9 @@ const clusterLayer = {
   source: 'nodes',
   filter: ['has', 'point_count'],
   paint: {
-    'circle-color': ['step', ['get', 'point_count'], '#51bbd6', 1, '#f1f075', 5, '#f28cb1'],
+    'circle-stroke-color': '#787878',
+    'circle-stroke-width': ['step', ['get', 'point_count'], 30, 2, 2],
+    'circle-color': '#ffffff',
     'circle-radius': ['step', ['get', 'point_count'], 30, 100, 60, 750, 60]
   }
 };

@@ -84,10 +84,10 @@ export default function NodeDetail() {
     xAxis: {
       type: 'datetime',
       title: {
-        text: "Time range"
+        text: "Rango de tiempo"
       },
       accessibility: {
-        rangeDescription: 'Line chart data'
+        rangeDescription: 'Gráfico de línea'
       },
       gridLineWidth: 0.75,
       gridLineDashStyle: "dash"
@@ -277,7 +277,7 @@ export default function NodeDetail() {
       }
     }
   }, [tabIndex, selectedAttribute?.id, selectedDateRange?.id]);
-  // console.log("modal", { nodeId, attributeId: selectedAttribute?.id })
+  console.log("modal", { nodeId, attributeId: selectedAttribute?.id })
   return (
     <Paper
       elevation={6}
@@ -334,8 +334,8 @@ export default function NodeDetail() {
           onChange={(_, newValue) => setTabIndex(newValue)}
           aria-label="icon label tabs example"
         >
-          <Tab icon={<SensorsIcon />} label="REAL TIME" />
-          <Tab icon={<DateRangeIcon />} label="HISTORICAL" />
+          <Tab icon={<SensorsIcon />} label="ÚLTIMA LECTURA" />
+          <Tab icon={<DateRangeIcon />} label="HISTORICO" />
         </Tabs>
       </Paper>
 
@@ -350,7 +350,7 @@ export default function NodeDetail() {
           tabIndex === 1 &&
           <Box sx={{ width: "100%" }}>
             <FormControl variant="filled" sx={{ minWidth: 120 }}>
-              <InputLabel id="attribute-label">Attribute</InputLabel>
+              <InputLabel id="attribute-label">Variable</InputLabel>
               <Select
                 autoWidth
                 labelId="attribute-label"
@@ -367,7 +367,7 @@ export default function NodeDetail() {
               </Select></FormControl>
             <FormControl variant="filled" sx={{ ml: "16px", minWidth: 120 }}>
 
-              <InputLabel id="date-range-label">Date range</InputLabel>
+              <InputLabel id="date-range-label">Rango de tiempo</InputLabel>
               <Select
                 autoWidth
                 labelId="date-range-label"
