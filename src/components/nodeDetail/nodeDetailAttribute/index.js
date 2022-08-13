@@ -1,27 +1,38 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useContext, useCallback, useState } from "react";
 import MainContext from '../../Context';
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
+import Chip from "@mui/material/Chip";
+import { styled } from '@mui/material/styles';
+
 import FirebaseContext from '../../../services/firebase/context';
-// import {
-//   getColorByLastValue
-// } from "./../../../utils";
+import {
+  getColorByLastValue
+} from "./../../../utils";
+
+// text-overflow: ellipsis;
+//     overflow: hidden;
+//     white-space: nowrap;
+
+const StyledTypography = styled(Typography)(({ theme }) => ({
+  textOverflow: "ellipsis",
+  overflow: "hidden",
+  whiteSpace: "nowrap"
+}));
 
 export default function NodeDetailAttribute(props) {
   const {
     theme,
-    // dashboard: {
-    //   selectedAttribute = {},
-    //   discretizationMap = {} 
-    // } = {}
+    dashboard: {
+      discretizationMap = {}
+    } = {}
   } = useContext(MainContext);
-  // const currentDiscretizations = discretizationMap?.[selectedAttribute?.id] || [];
-  // const discretization = currentDiscretizations?.[0] || {}
 
   const { db } = useContext(FirebaseContext);
   const {
     attribute: {
+      id: attributeId,
       name: attributeName,
       value: attributeValue,
       lastValue: attributeLastValue,
@@ -29,30 +40,38 @@ export default function NodeDetailAttribute(props) {
     } = {},
     setAttributes
   } = props;
+  const [statusColor, setStatusColor] = useState("transparent");
+
+  const updateStatusColor = useCallback((lastValue) => {
+    const currentDiscretizations = discretizationMap?.[attributeId] || [];
+    const discretization = currentDiscretizations?.[0] || {}
+    setStatusColor(getColorByLastValue(lastValue, discretization?.map));
+  })
 
   useEffect(() => {
     let unsubscribe = null;
     if (nodeAttributeId !== undefined) {
-        unsubscribe = db
-          .collection('node_attribute')
-          .doc(String(nodeAttributeId))
-          .onSnapshot((snapshot, error) => {
-            if (error) console.log(error);
-            const document = snapshot.data();
-            console.log("Firebase read realtime");
-            if (document) {
-              setAttributes(lastAttributes => {
-                return lastAttributes.map(att => {
-                  if (att.id === document.attributeId) {
-                    if (att.value !== undefined) att.lastValue = att.value
-                    if (document.attributeValue !== undefined) att.value = parseFloat(document.attributeValue.toFixed(2))
-                  }
-                  return att;
-                })
+      unsubscribe = db
+        .collection('node_attribute')
+        .doc(String(nodeAttributeId))
+        .onSnapshot((snapshot, error) => {
+          if (error) console.log(error);
+          const document = snapshot.data();
+          console.log("Firebase read realtime");
+          if (document) {
+            setAttributes(lastAttributes => {
+              return lastAttributes.map(att => {
+                if (att.id === document.attributeId) {
+                  if (att.value !== undefined) att.lastValue = att.value
+                  if (document.attributeValue !== undefined) att.value = parseFloat(document.attributeValue.toFixed(2))
+                  updateStatusColor(att.value);
+                }
+                return att;
               })
-            }
-          });
-      }
+            })
+          }
+        });
+    }
     return () => {
       if (unsubscribe) unsubscribe();
     }
@@ -62,59 +81,70 @@ export default function NodeDetailAttribute(props) {
     <Paper
       variant="outlined"
       square
-      sx={{
+      sx={(theme) => ({
         height: "100px",
         p: "8px",
-        // backgroundColor: getColorByLastValue(attributeValue, discretization?.map || [])
-      }}
+        backgroundColor: statusColor || theme.palette.background.paper,
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between"
+      })}
     >
-      <Typography
+      <StyledTypography
         align="left"
         color="text.secondary"
         variant="caption"
         component="div"
       >
         {attributeName}
-      </Typography>
-      <Typography align="left" variant="h4" component="div">
+      </StyledTypography>
+      <StyledTypography align="left" variant="h4" component="div">
         {attributeValue !== undefined ? attributeValue : "NA"}
-      </Typography>
-      <Box
-        sx={{
+      </StyledTypography>
+      {
+        attributeValue !== undefined &&
+        attributeLastValue !== undefined &&
+        <Box sx={(theme) => ({
+          backgroundColor: theme.palette.background.paper,
           display: "flex",
-          alignItems: "center"
-        }}
-      >
-        {
-          attributeValue !== undefined &&
-          attributeLastValue !== undefined &&
-          <>
-            <Typography
-              align="center" 
-              color={`${attributeValue < attributeLastValue ? "error" : "success"}.${theme === "default" ? "light": "dark"}`}
-              variant="button"
-              component="div"
-            >
-              {attributeValue < attributeLastValue ? "-" : "+"}
-              {Math.round(
-                attributeValue < attributeLastValue
-                  ? attributeLastValue / attributeValue
-                  : attributeValue / attributeLastValue
-              ) + "%"}
-            </Typography>
-            <Typography
-              sx={{ pl: "5px" }}
-              align="center"
-              color="text.secondary"
-              variant="caption"
-              component="div"
-            >
-              {"vs. last read"}
-            </Typography>
-          </>
-        }
-
-      </Box>
+          alignItems: "center",
+          width: "100%",
+          borderRadius: "8px"
+        })}>
+          <Typography
+            align="center"
+            sx={{
+              ml: "5px"
+            }}
+            color={`${
+              attributeValue < attributeLastValue 
+              ? "error" 
+              : "success"}.${
+                theme === "default" 
+                ? "dark" 
+                : "light"}`}
+            variant="button"
+            component="div"
+          >
+            {attributeValue < attributeLastValue ? "-" : "+"}
+            {Math.round(
+              attributeValue < attributeLastValue
+                ? attributeLastValue / attributeValue
+                : attributeValue / attributeLastValue
+            ) + "%"}
+          </Typography>
+          <Typography
+            sx={{ pl: "5px" }}
+            align="center"
+            color="text.secondary"
+            variant="caption"
+            component="div"
+          >
+            {"variación"}
+          </Typography>
+        </Box>
+      }
     </Paper>
   );
 }
