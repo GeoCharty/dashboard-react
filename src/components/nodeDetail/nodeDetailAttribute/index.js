@@ -73,7 +73,10 @@ export default function NodeDetailAttribute(props) {
         });
     }
     return () => {
-      if (unsubscribe) unsubscribe();
+      if (unsubscribe) {
+        // console.log("Firebase unsubscribe real time: ");
+        unsubscribe();
+      }
     }
   }, []);
 
