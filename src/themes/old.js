@@ -2,16 +2,13 @@ import { createTheme } from '@mui/material/styles';
 
 const defaultTheme = createTheme({
   palette: {
-    type: 'dark',
+    type: 'light',
     primary: {
-      light: '#021730',
-      main: '#052b5a',
-      dark: '#4d6ea0',
+      light: '#0097a7',
+      main: '#006064',
     },
     secondary: {
-      light: '#D99D5D',
-      main: '#e9c49e',
-      dark: '#F7E7D7',
+      main: '#f50057',
     },
     error: {
       light: '#c4414b',
@@ -93,7 +90,7 @@ const darkTheme = createTheme({
       disabled: '#b9b9b9',
     },
     
-  }
+  },
 });
 const Themes = { 
   default: defaultTheme, 

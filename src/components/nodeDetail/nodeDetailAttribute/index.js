@@ -3,17 +3,12 @@ import MainContext from '../../Context';
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
-import Chip from "@mui/material/Chip";
 import { styled } from '@mui/material/styles';
 
 import FirebaseContext from '../../../services/firebase/context';
 import {
   getColorByLastValue
 } from "./../../../utils";
-
-// text-overflow: ellipsis;
-//     overflow: hidden;
-//     white-space: nowrap;
 
 const StyledTypography = styled(Typography)(({ theme }) => ({
   textOverflow: "ellipsis",
@@ -40,7 +35,7 @@ export default function NodeDetailAttribute(props) {
     } = {},
     setAttributes
   } = props;
-  const [statusColor, setStatusColor] = useState("transparent");
+  const [statusColor, setStatusColor] = useState();
 
   const updateStatusColor = useCallback((lastValue) => {
     const currentDiscretizations = discretizationMap?.[attributeId] || [];

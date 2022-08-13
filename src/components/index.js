@@ -25,6 +25,7 @@ import Header from './../components/header';
 import Drawer from './../components/drawer';
 import Content from './../components/content';
 import NodeDetail from './../components/nodeDetail';
+import Portal from './../components/Portal';
 import Async from "async";
 
 import {
@@ -246,7 +247,9 @@ class App extends React.Component {
                 }
                 {
                   dashboard.selectedNode &&
-                  <NodeDetail />
+                  <Portal>
+                     <NodeDetail />
+                  </Portal>
                 }
                 <Header />
                 <Drawer />

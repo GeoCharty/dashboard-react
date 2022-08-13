@@ -14,9 +14,8 @@ import Select from '@mui/material/Select';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import Highcharts from 'highcharts'
-import Dark from 'highcharts/themes/dark-unica';
-import Light from 'highcharts/themes/brand-light';
 import Grid from '@mui/material/Grid';
+import { useTheme } from '@mui/material/styles';
 
 import networkServices from "./../../services/network";
 import attributeServices from "./../../services/attribute";
@@ -39,8 +38,8 @@ const {
 } = CONSTANTS;
 
 export default function NodeDetail() {
+  const usedTheme = useTheme();
   const {
-    theme,
     dashboard: {
       selectedNode: {
         id: nodeId,
@@ -147,7 +146,7 @@ export default function NodeDetail() {
     accessibility: {
       enabled: false
     },
-    colors: ["#006064"],
+    colors: [usedTheme.palette.primary.main],
     tooltip: {
       style: {
         backgroundColor: "#1c1c1b"
@@ -158,7 +157,15 @@ export default function NodeDetail() {
     }
   });
   const { db } = useContext(FirebaseContext);
-
+  
+  useEffect(()=>{
+    setLineChartOptions(lastLineChartOptions => {
+      return {
+        ...lastLineChartOptions,
+        colors: [usedTheme.palette.primary.main]
+      }
+    })
+  }, [usedTheme.palette.primary.main])
 
   useEffect(() => {
     let unsubscribe = null;
@@ -216,12 +223,6 @@ export default function NodeDetail() {
     }
     fetchData()
   }, [])
-  // console.log("attr", attributes);
-
-  useEffect(() => {
-    if (theme === 'default') Light(Highcharts);
-    if (theme === 'dark' || theme === undefined) Dark(Highcharts);
-  }, [theme]);
 
   useEffect(() => {
     if (

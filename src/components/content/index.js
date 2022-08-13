@@ -1,4 +1,4 @@
-import React, { useRef, useContext, useCallback, useEffect } from 'react';
+import React, { useRef, useContext, useCallback } from 'react';
 import { Map, Source, Layer } from 'react-map-gl';
 import MainContext from '../Context';
 import { Box } from "@mui/material";
