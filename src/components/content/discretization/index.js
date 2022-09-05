@@ -7,7 +7,7 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import {
   queryToString
-} from "./../../../utils";
+} from "./../../../utils/index";
 
 export default function OutlinedCard() {
   const {
