@@ -26,25 +26,13 @@ const DATE_RANGE = {
   //   label: "custom"
   // }
 }
+
 const TIME_ZONE = {
   "GTM-5": {
     name: "America, Guayaquil"
   }
 }
-module.exports = {
-  DATE_RANGE,
-  TIME_ZONE
+export default {
+  TIME_ZONE,
+  DATE_RANGE
 }
-
-// [
-//   {
-//       "last": "48.0001",
-//       "attribute_id": "64153698",
-//       "node_id": "97248411"
-//   },
-//   {
-//       "last": "4.0001",
-//       "attribute_id": "64153698",
-//       "node_id": "17384172"
-//   }
-// ]

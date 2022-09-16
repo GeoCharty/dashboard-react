@@ -1,5 +1,5 @@
 const API_URL = process.env.REACT_APP_POINTS_HANLDER_API_URL;
-console.log("API_URL:", API_URL);
+
 const {
   abstractRequest
 } = require("./../utils");
@@ -59,8 +59,7 @@ const getLastValues = async(params, abortSignal) => {
 
   return abstractRequest(requestParams, abortSignal);
 } 
-
-module.exports = {
-  getByDateRange,
-  getLastValues
+export default {
+  getLastValues,
+  getByDateRange
 }

@@ -1,6 +1,6 @@
 const moment = require("moment");
 
-const getFeatureCollection = (data) => {
+export const getFeatureCollection = (data) => {
   return {
     "type": "FeatureCollection",
     "features": Array.isArray(data) ? data.map(d => {
@@ -16,7 +16,7 @@ const getFeatureCollection = (data) => {
     }) : []
   }
 }
-const getTimestamps = (dateRange) => {
+export const getTimestamps = (dateRange) => {
   const {
     id: dateRangeId
   } = dateRange;
@@ -47,14 +47,14 @@ const getTimestamps = (dateRange) => {
   }
 }
 
-const convertToLocalTimestamp = (millis) => {
+export const convertToLocalTimestamp = (millis) => {
   const date = new Date(millis);
   const offsetHours = new Date().getTimezoneOffset() / 60;
   date.setHours(date.getHours() - offsetHours);
   return date.valueOf();
 }
 
-const getColorByLastValue = (lastValue, queries) => {
+export const getColorByLastValue = (lastValue, queries) => {
   let value = true;
   lastValue = Number(lastValue.toFixed(2))
   for (const {query, result} of queries) {
@@ -86,7 +86,7 @@ const getColorByLastValue = (lastValue, queries) => {
   return '#11b4da';
 }
 
-const queryToString = (query) => {
+export const queryToString = (query) => {
 
   if(Object.keys(query).length == 1){
     if(query.hasOwnProperty("$eq")){
@@ -123,12 +123,4 @@ const queryToString = (query) => {
     }
   }
   return '';
-}
-
-module.exports = {
-  getFeatureCollection,
-  getTimestamps,
-  convertToLocalTimestamp,
-  getColorByLastValue,
-  queryToString
 }

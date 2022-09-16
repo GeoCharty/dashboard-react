@@ -1,5 +1,5 @@
 const API_URL = process.env.REACT_APP_DASHBOARD_API_URL;
-console.log("API_URL:", API_URL);
+
 const {
   abstractRequest
 } = require("./../utils");
@@ -36,8 +36,9 @@ const getByNodeId = async(params, abortSignal) => {
   }
 
   return abstractRequest(requestParams, abortSignal);
-} 
-module.exports = {
-  getByOrganizationId,
-  getByNodeId
+}
+
+export default {
+  getByNodeId,
+  getByOrganizationId
 }

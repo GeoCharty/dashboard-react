@@ -1,6 +1,6 @@
 import app from 'firebase/app';
 
-import firebaseConfig from './config';
+import {firebaseConfig} from './config';
 import 'firebase/firestore';
 import 'firebase/storage';
 

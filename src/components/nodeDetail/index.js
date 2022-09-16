@@ -20,7 +20,10 @@ import { useTheme } from '@mui/material/styles';
 import networkServices from "./../../services/network";
 import attributeServices from "./../../services/attribute";
 import pointServices from "./../../services/point";
-import Utils from "./../../utils";
+import {
+  getTimestamps,
+  convertToLocalTimestamp
+} from "./../../utils";
 import NodeDetailAttribute from "./nodeDetailAttribute";
 import HighchartsReact from 'highcharts-react-official';
 import CONSTANTS from "./../../utils/constants";
@@ -29,10 +32,6 @@ import FirebaseContext from '../../services/firebase/context';
 require('highcharts/modules/exporting')(Highcharts)
 require('highcharts/highcharts-more')(Highcharts);
 
-const {
-  getTimestamps,
-  convertToLocalTimestamp
-} = Utils;
 const {
   DATE_RANGE
 } = CONSTANTS;

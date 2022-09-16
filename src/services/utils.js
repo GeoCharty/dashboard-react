@@ -1,5 +1,5 @@
 
-export async function abstractRequest(params, abortSignal) {
+export const abstractRequest = async(params, abortSignal) => {
   if (!params) throw new Error('EMPTY PARAMS NOT ALLOWED');
 
   const {
