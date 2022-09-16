@@ -1,4 +1,5 @@
 const API_URL = process.env.REACT_APP_POINTS_HANLDER_API_URL;
+console.log("API_URL:", API_URL);
 const {
   abstractRequest
 } = require("./../utils");
@@ -24,7 +25,7 @@ const getByDateRange = async(params, abortSignal) => {
     sort
   })
 
-  const url = new URL(`/${CORE_ENTITY}/search?${urlParams.toString()}`, API_URL);
+  const url = new URL(`${CORE_ENTITY}/search?${urlParams.toString()}`, API_URL);
   
   const requestParams = {
     ...params,
@@ -43,7 +44,7 @@ const getLastValues = async(params, abortSignal) => {
     attributeId
   } = params || {};
 
-  const url = new URL(`/${CORE_ENTITY}/lastValues`, API_URL);
+  const url = new URL(`${CORE_ENTITY}/lastValues`, API_URL);
   
   const requestParams = {
     ...params,

@@ -1,4 +1,5 @@
 const API_URL = process.env.REACT_APP_DASHBOARD_API_URL;
+console.log("API_URL:", API_URL);
 const {
   abstractRequest
 } = require("./../utils");
@@ -8,7 +9,7 @@ const getByAttributeId = async(params, abortSignal) => {
   const {
     id: attributeId
   } = params || {};
-  const url = new URL(`/attribute/${attributeId}/${CORE_ENTITY}/`, API_URL);
+  const url = new URL(`attribute/${attributeId}/${CORE_ENTITY}/`, API_URL);
   const requestParams = {
     method: 'GET',
     url: url.toString(),
